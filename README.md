@@ -1,11 +1,10 @@
 # AVR Controller
 
-This Node app communicates with my tv via rs232 and with my audio receiver via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob.
+This NodeJS service communicates with my tv via rs232 and with my audio receiver via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob and it syncs up with my Home Automation platform.
 
-This relieves me of a universal remote, each device has its own controller and the PowerMate provides the missing functionality. The Nexus player is the default device and it has an OSD remote to provide input changes and other functions.
-Now I have one remote, the Nexus Remote and that along with the PowerMate can control everything needed, then the game systems have there own controllers. There is no longer a need for a second remote to control the AVR/Power/Volume/Lights..
+This relieves me of a universal remote, each device has its own remote/gamepad and the PowerMate provides the missing functionality. The Nexus player is the primary device/remote and it has custom software to provide input changes and other functions missing on the bluetooth Android remote.
 
-Also provides me with remote control through Web browser through a Domoticz Virtual Selector Switch.
+There is remote control via Web browser through a Domoticz Virtual Selector Switch. I have automation scripts in Domoticz that change depending on the state of the AVR, and others that can controll the AVR.
 
 ### Hardware:
 * Pioneer SC-1222-K
@@ -31,6 +30,16 @@ Also provides me with remote control through Web browser through a Domoticz Virt
 * Down and Right = Brighten Living Room Lights.
 
 > Out of the box this solution is going to do very little for you, its very specific to my setup. However the code is free to copy and modify for your own uses.
+
+### Files
+* server.js - The main app, if debugging you can run this directly from command line.
+* daemon.js - This is app starts/stops the server.
+* hardware/pioneeravr.js - Functions for AVR Commands and Monitoring.
+* hardware/powermate.js - Functions for the PowerMate USB Knob.
+* hardware/sharptv.js - Functions for TV Commands.
+* screenshots/ - Images of Domoticz & Setup
+* systemd/avrcontroller.service - SystemD Service for Starting/Restarting.
+
 
 ### Credits:
 * My Pioneer-AVR Starting point: https://github.com/stormboy/node-pioneer-avr/blob/master/pioneer-avr.js
