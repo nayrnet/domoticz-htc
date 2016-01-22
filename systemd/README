@@ -1,0 +1,7 @@
+I have issues where every other day the DRM encryption on my HDMI fails and nothing is displayed.
+
+To work arround this problem, many devices are on physical timers to shut off for 1min every night, forcing them to hard-reset. 
+
+Its an ugly hack but the AVR Daemon will cope with it by dying, then systemd restarts it for me after 2mins, long enough for everything to come back on and settle down.
+
+
