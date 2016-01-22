@@ -34,13 +34,14 @@ Also provides me with remote control through Web browser through a Domoticz Virt
 
 ### Credits:
 * My Pioneer-AVR Starting point: https://github.com/stormboy/node-pioneer-avr/blob/master/pioneer-avr.js
+* My PowerMate Starting point: https://github.com/mattwelch/sonospowermate/blob/master/sonospowermate.js
 
 ### Web Screenshot:
 Selector Switch:
 
-![Domoticz Selector Switch](screenshot-button.png)
+![Domoticz Selector Switch](screenshots/screenshot-button.png)
 
 Switch Config:
 
-![Domoticz Switch Config](screenshot-config.png)
+![Domoticz Switch Config](screenshots/screenshot-config.png)
 
