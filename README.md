@@ -9,10 +9,10 @@ Also provides me with remote controll through Web browser through a Domoticz Vir
 
 ### Hardware:
 * Pioneer SC-1222-K
-..* Google Nexus Player
-..* Sony PlayStation 3
-..* Sony PlayStation 4
-..* Mini Super NVR (Display Only, no storage)
+  * Google Nexus Player
+  * Sony PlayStation 3
+  * Sony PlayStation 4
+  * Mini Super NVR (Display Only, no storage)
 * Sharp Aquos LC-C3242U
 * Griffin PowerMate NA16029
 
@@ -37,8 +37,10 @@ Also provides me with remote controll through Web browser through a Domoticz Vir
 
 ### Web Screenshot:
 Selector Switch:
+
 ![Domoticz Selector Switch](screenshot-button.png)
 
 Switch Config:
+
 ![Domoticz Switch Config](screenshot-config.png)
 
