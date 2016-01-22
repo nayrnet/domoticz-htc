@@ -1,11 +1,11 @@
 # AVR Controller
 
-This Node app communicates with my tv via rs232 and with my audio reciever via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob.
+This Node app communicates with my tv via rs232 and with my audio receiver via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob.
 
 This relieves me of a universal remote, each device has its own controller and the PowerMate provides the missing functionality. The Nexus player is the default device and it has an OSD remote to provide input changes and other functions.
-Now I have one remote, the Nexus Remote and that along with the PowerMate can controll everything needed, then the game systems have there own controllers. There is no longer a need for a second remote to controll the AVR/Power/Volume/Lights..
+Now I have one remote, the Nexus Remote and that along with the PowerMate can control everything needed, then the game systems have there own controllers. There is no longer a need for a second remote to control the AVR/Power/Volume/Lights..
 
-Also provides me with remote controll through Web browser through a Domoticz Virtural Selector Switch.
+Also provides me with remote control through Web browser through a Domoticz Virtual Selector Switch.
 
 ### Hardware:
 * Pioneer SC-1222-K
