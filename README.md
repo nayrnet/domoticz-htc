@@ -6,6 +6,8 @@ This relieves me of a universal remote, each device has its own remote/gamepad a
 
 There is remote control via Web browser through a Domoticz Virtual Selector Switch. I have automation scripts in Domoticz that change depending on the state of the AVR, and others that can controll the AVR.
 
+> Out of the box this solution is going to do very little for you, its very specific to my setup. However the code is free to copy and modify for your own uses.
+
 ### Hardware:
 * Pioneer SC-1222-K
   * Google Nexus Player
@@ -18,7 +20,7 @@ There is remote control via Web browser through a Domoticz Virtual Selector Swit
 ### Software:
 * AVR Controller - ME!
 * Domoticz WebUI - http://www.domoticz.com
-* Debian Jessie w/NodeJS from NodeSource repos
+* Debian Jessie w/NodeJS from NodeSource repository
 * AndroidTV OSD Remote - https://github.com/nayrnet/androidtv-osd-remote
 
 ### PowerMate Functions: 
@@ -29,8 +31,6 @@ There is remote control via Web browser through a Domoticz Virtual Selector Swit
 * Down and Left = Dim Living Room Lights.
 * Down and Right = Brighten Living Room Lights.
 
-> Out of the box this solution is going to do very little for you, its very specific to my setup. However the code is free to copy and modify for your own uses.
-
 ### Files
 * server.js - The main app, if debugging you can run this directly from command line.
 * daemon.js - This is app starts/stops the server.
@@ -39,7 +39,6 @@ There is remote control via Web browser through a Domoticz Virtual Selector Swit
 * hardware/sharptv.js - Functions for TV Commands.
 * screenshots/ - Images of Domoticz & Setup
 * systemd/avrcontroller.service - SystemD Service for Starting/Restarting.
-
 
 ### Credits:
 * My Pioneer-AVR Starting point: https://github.com/stormboy/node-pioneer-avr/blob/master/pioneer-avr.js
@@ -54,3 +53,9 @@ Switch Config:
 
 ![Domoticz Switch Config](screenshots/screenshot-config.png)
 
+#### TO-DO:
+* AVR Display & Status in Domoticz
+* MQTT Interface to Domoticz instead of HTTP Requests.
+
+#### Support
+> No support provided or warranty impied, this project is avilable for educational use and my own personal tracking.

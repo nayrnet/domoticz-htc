@@ -1,14 +1,27 @@
 #!/usr/bin/nodejs
-# PowerMate AVR - Controlls volume and power via PowerMate USB
+// PowerMate USB - This is the physical device that controlls the AVR.
 
-var	PowerMate 	= require('node-powermate');
+var	PowerMate 	= require('node-powermate'),
+	events		= require('events'),
+	util   		= require('util').inherits;
 
-// PowerMate Volume Knob
-var powermate = new PowerMate();
-var dblClickTimer;
-var pressTimer;
-var isDown = false;
+var TRACE = false;
 
+var PowerMote = function(options) {
+	events.EventEmitter.call(this); // inherit from EventEmitter
+    	TRACE = options.log;
+}
+
+util.inherits(PowerMote, events.EventEmitter);
+
+var 	powermate 	= new PowerMate(),
+	isDown 		= false,
+	commandReady 	= true,
+	dblClickTimer,
+	pressTimer,
+	commandTimer;
+
+// Local Functions
 powermate.on('buttonDown', function() {
 	isDown = true;
 	// If we hold the button down for more than 2 seconds, let's call it a long press....
@@ -44,8 +57,6 @@ powermate.on('wheelTurn', function(delta) {
 });
 
 // Volume Knob Gesstures section
-var commandReady = true;
-var commandTimer;
 
 // Turn up volume
 function right(delta) {

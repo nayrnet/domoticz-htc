@@ -1,8 +1,10 @@
 #!/usr/bin/nodejs
+// Starts and Stops the AVR Controller in the background.
+
 var daemon = require("daemonize2").setup({
-    main: "server.js",
-    name: "AVR Controller Service",
-    pidfile: "avrcontroller.pid"
+	main: "server.js",
+	name: "AVR Controller Service",
+	pidfile: "avrcontroller.pid"
 });
 
 switch (process.argv[2]) {

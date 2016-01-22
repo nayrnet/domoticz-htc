@@ -1,0 +1,33 @@
+{
+  "name": "avr-controller",
+  "version": "1.0.0",
+  "description": "NodeJS AVR Controller",
+  "main": "server.js",
+  "dependencies": {
+    "help": "^2.1.2",
+    "events": "^1.1.0",
+    "serialport": "^2.0.6",
+    "crypto": "^0.0.3",
+    "mqtt": "^1.6.3",
+    "daemonize2": "^0.4.2",
+    "node-powermate": "^0.0.3",
+    "request": "^2.67.0",
+    "util": "^0.10.3",
+    "net": "^1.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nayrnet/avr-controller.git"
+  },
+  "author": "Ryan Hunt",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/nayrnet/avr-controller/issues"
+  },
+  "homepage": "https://github.com/nayrnet/avr-controller#readme"
+}
