@@ -8,7 +8,6 @@
     "events": "^1.1.0",
     "serialport": "^2.0.6",
     "crypto": "^0.0.3",
-    "mqtt": "^1.6.3",
     "daemonize2": "^0.4.2",
     "node-powermate": "^0.0.3",
     "request": "^2.67.0",

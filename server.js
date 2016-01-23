@@ -1,7 +1,6 @@
 #!/usr/bin/nodejs
-// AVR Controller Server - Listens for HTTP GET Requests and changes the input.
+// AVR Controller Server - Setups all the hardware and listens for external API calls.
 // This is the main proccess, everything comes together in here.
-// By: Ryan Hunt <admin@nayr.net>
 
 var 	avr 		= require('./hardware/pioneeravr.js'),
 	tele		= require('./hardware/sharptv.js'),
@@ -36,41 +35,41 @@ webserver.on('request', function(req, res) {
 	    case '/on':
 		receiver.power(1);
 		tv.power(1);
-		console.log("HTTP-GET: power on");
+		if(options.log) { console.log("HTTP-GET: /on"); }
 		break;
 	    case '/off':
 		receiver.power(0);
 		tv.power(0);
-		console.log("HTTP-GET: power off");
+		if(options.log) { console.log("HTTP-GET: /off"); }
 		break;
 	    case '/muteon':
 		receiver.mute(1);
 		tv.mute(1);
-		console.log("HTTP-GET: mute on");
+		if(options.log) { console.log("HTTP-GET: /muteon"); }
 		break;
 	    case '/muteoff':
 		receiver.mute(0);
 		tv.mute(0);
-		console.log("HTTP-GET: mute off");
+		if(options.log) { console.log("HTTP-GET: /muteoff"); }
 		break;
 	    case '/ps3':
 		setInput("04");		// This has to be paded with a zero as the input is 04 not 4
-		console.log("HTTP-GET: input ps3");
+		if(options.log) { console.log("HTTP-GET: /ps3"); }
 		break;
 	    case '/ps4':
 		setInput(22);
-		console.log("HTTP-GET: input ps4");
+		if(options.log) { console.log("HTTP-GET: /ps4"); }
 		break;
 	    case '/nexus':
 		setInput(15);
-		console.log("HTTP-GET: input nexus");
+		if(options.log) { console.log("HTTP-GET: /nexus"); }
 		break;
 	    case '/ipcameras':
-		setInput(24);
-		console.log("HTTP-GET: input security cameras");
+		setInput(24);1
+		if(options.log) { console.log("HTTP-GET: /ipcameras"); }
 		break;
 	    case '/':
-	      res.write('<html><body>Hello, I am the AVR Daemon.</body></html>');
+	      res.write('<html><body>Hello, I am the AVR Controller.</body></html>');
 	      break;
 	    default:
 	      res.write('Unknown path: ' + JSON.stringify(url_parts));

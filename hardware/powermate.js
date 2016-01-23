@@ -2,17 +2,9 @@
 // PowerMate USB - This is the physical device that controlls the AVR.
 
 var	PowerMate 	= require('node-powermate'),
+	avr 		= require('./pioneeravr.js'),
 	events		= require('events'),
 	util   		= require('util').inherits;
-
-var TRACE = false;
-
-var PowerMote = function(options) {
-	events.EventEmitter.call(this); // inherit from EventEmitter
-    	TRACE = options.log;
-}
-
-util.inherits(PowerMote, events.EventEmitter);
 
 var 	powermate 	= new PowerMate(),
 	isDown 		= false,
@@ -21,42 +13,13 @@ var 	powermate 	= new PowerMate(),
 	pressTimer,
 	commandTimer;
 
-// Local Functions
-powermate.on('buttonDown', function() {
-	isDown = true;
-	// If we hold the button down for more than 2 seconds, let's call it a long press....
-	pressTimer = setTimeout(longClick, 2000);
-});
+var powerMote = function(options) {
+	events.EventEmitter.call(this); // inherit from EventEmitter
+    	TRACE = options.log;
+	var	receiver 	= new avr.Pioneer(options),
+}
 
-powermate.on('buttonUp', function() {
-	isDown = false;
-	// If the timer is still going call it a short click
-	if (pressTimer._idleNext) {
-		if (dblClickTimer && dblClickTimer._idleNext) {
-			clearTimeout(dblClickTimer);
-			doubleClick();
-		} else {
-			dblClickTimer=setTimeout(singleClick,500);
-		}
-	}
-	clearTimeout(pressTimer);
-});
-
-powermate.on('wheelTurn', function(delta) {
-	clearTimeout(pressTimer);
-	// This is a right turn
-	if (delta > 0) {
-		if (isDown) downRight(); // down
-		else right(delta); // up
-	}
-	// Left
-	if (delta < 0) {
-		if (isDown) downLeft(); // down
-		else left(delta); // up
-    	}
-});
-
-// Volume Knob Gesstures section
+// Gessture Functions
 
 // Turn up volume
 function right(delta) {
@@ -98,3 +61,42 @@ function downRight() {
 function downLeft() {
 }
 
+
+// Activity Functions
+
+powermate.on('buttonDown', function() {
+	isDown = true;
+	// If we hold the button down for more than 2 seconds, let's call it a long press....
+	pressTimer = setTimeout(longClick, 2000);
+});
+
+powermate.on('buttonUp', function() {
+	isDown = false;
+	// If the timer is still going call it a short click
+	if (pressTimer._idleNext) {
+		if (dblClickTimer && dblClickTimer._idleNext) {
+			clearTimeout(dblClickTimer);
+			doubleClick();
+		} else {
+			dblClickTimer=setTimeout(singleClick,500);
+		}
+	}
+	clearTimeout(pressTimer);
+});
+
+powermate.on('wheelTurn', function(delta) {
+	clearTimeout(pressTimer);
+	// This is a right turn
+	if (delta > 0) {
+		if (isDown) downRight(); // down
+		else right(delta); // up
+	}
+	// Left
+	if (delta < 0) {
+		if (isDown) downLeft(); // down
+		else left(delta); // up
+    	}
+});
+
+exports.reciever = reciever;
+exports.powerMote = powerMote;
