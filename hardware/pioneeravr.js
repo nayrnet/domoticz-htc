@@ -1,24 +1,20 @@
-/**
- * To control a Pioneer receiver via IP protocol.
- * Tested with Pioneer-2021
- */
+// Pioneer AVR Hardware - Sends Commands and Monitors for changes.
 
-var util   = require('util'),
-    net    = require('net'),
-    events = require('events'),
-    request = require('request');
+var 	util	= require('util'),
+    	net    	= require('net'),
+    	events 	= require('events'),
+    	request = require('request');
 
 var TRACE = true;
 var DETAIL = true;		// detail logging flag
+var domoURI = "http://dev:dev@localhost:8080"
 
 var Pioneer = function(options) {
-    events.EventEmitter.call(this); // inherit from EventEmitter
-    
-    this.client = this.connect(options);
-    
-    this.inputNames = {};
-    
-    TRACE = options.log;
+	events.EventEmitter.call(this); // inherit from EventEmitter
+	this.client = this.connect(options);
+	this.inputNames = {};
+	TRACE = options.log;
+	domoURI = options.domo;
 };
 
 util.inherits(Pioneer, events.EventEmitter);
@@ -203,12 +199,8 @@ function handleData(self, d) {
         if (TRACE) {
             console.log("got power: " + pwr);
         }
-        if (pwr) {
-                //request('http://dev:dev@localhost:8080/json.htm?type=command&param=switchlight&idx=145&switchcmd=Set%20Level&level=10');
-                console.log("power on");
-	} else {
-                request('http://dev:dev@localhost:8080/json.htm?type=command&param=switchlight&idx=145&switchcmd=Off');
-                console.log("power off");
+        if (!pwr) {
+		updateDomo(145,0);
 	}
 	pow = pwr;
         self.emit("power", pwr);
@@ -231,11 +223,9 @@ function handleData(self, d) {
             console.log("got mute: " + mute);
         }
         if (mute && pow && ext) {
-		request('http://dev:dev@localhost:8080/json.htm?type=command&param=switchlight&idx=105&switchcmd=On');
-                console.log("mute on");
+		updateDomo(105,100);
 	} else if (ext) {
-		request('http://dev:dev@localhost:8080/json.htm?type=command&param=switchlight&idx=105&switchcmd=Off');
-                console.log("mute off");
+		updateDomo(105,0);
 	}
         self.emit("mute", mute);
     }
@@ -245,17 +235,13 @@ function handleData(self, d) {
             console.log("got input: " + input + " : " + self.inputNames[input]);
         }
         if(input == 22 && pow) {
-                request('http://dev:dev@localhost:8080/json.htm?type=command&param=switchlight&idx=145&switchcmd=Set%20Level&level=30');
-                console.log("current input: playstation 4");
+		updateDomo(145,30);	// Playstation 4
         }else if(input == 4 && pow) {
-                request('http://dev:dev@localhost:8080/json.htm?type=command&param=switchlight&idx=145&switchcmd=Set%20Level&level=20');
-                console.log("current input: playstation 3");
+		updateDomo(145,20);	// Playstation 3
         }else if(input == 15 && pow) {
-                request('http://dev:dev@localhost:8080/json.htm?type=command&param=switchlight&idx=145&switchcmd=Set%20Level&level=10');
-                console.log("current input: nexus player");
+		updateDomo(145,10);	// Nexus Player
         }else if(input == 24 && pow) {
-                request('http://dev:dev@localhost:8080/json.htm?type=command&param=switchlight&idx=145&switchcmd=Set%20Level&level=40');
-                console.log("current input: security cameras");
+		updateDomo(145,40);	// IP Cameras
         }
         self.emit("input", input, self.inputNames[input]);
     }
@@ -317,6 +303,23 @@ function handleData(self, d) {
             console.log("got data: " + data);
         }
     }
+}
+
+function updateDomo(idx,level) {
+	var 	switchcmd,
+		jsonURI = "/json.htm?type=command&param=switchlight&idx=";
+
+	if (level > 99) {
+		switchcmd = "On";
+	} else if (level < 1) {
+		switchcmd = "Off";
+	} else {
+		switchcmd = "Set%20Level&level=" + level;
+	}
+	if (TRACE) {
+		console.log("DOMO: " + domoURI + jsonURI + idx + "&switchcmd=" + switchcmd);
+	}
+	request(domoURI + jsonURI + idx + "&switchcmd=" + switchcmd);
 }
 
 function handleEnd(self) {

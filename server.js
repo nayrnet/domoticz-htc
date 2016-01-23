@@ -4,7 +4,7 @@
 
 var 	avr 		= require('./hardware/pioneeravr.js'),
 	tele		= require('./hardware/sharptv.js'),
-//	vol		= require('./hardware/powermote.js'),
+//	powermate	= require('./hardware/powermate.js'),
     	request 	= require('request'),
 	http 		= require('http'),
     	url 		= require('url'),
@@ -12,15 +12,19 @@ var 	avr 		= require('./hardware/pioneeravr.js'),
 
 var options = {
 	// AVR Connection Settings
-	port: 50000,
-	host: "192.168.4.66",
+	port: 		50000,
+	host: 		"192.168.4.66",
+	// TV Port Settings
+	serialport: 	"/dev/ttyUSB-TV",
+	serialbaud: 	"9600",
 	// Debug Logging
-	log: false
+	log: 		false
 };
 
 // Setup Hardware
 var	receiver 	= new avr.Pioneer(options);
 var	tv 		= new tele.SharpTV(options);
+//var 	vol		= new powermate.PowerMote(options);
 
 // Setup Software
 var 	webserver 	= http.createServer().listen(8090, 'localhost');

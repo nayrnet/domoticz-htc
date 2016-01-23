@@ -98,5 +98,5 @@ powermate.on('wheelTurn', function(delta) {
     	}
 });
 
-exports.reciever = reciever;
+exports.Pioneer = reciever;
 exports.powerMote = powerMote;
