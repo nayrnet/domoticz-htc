@@ -163,6 +163,10 @@ Pioneer.prototype.listeningMode = function(mode) {
     this.client.write("MF\r");
 };
 
+Pioneer.prototype.queryaudioMode = function(mode) {
+    this.client.write("?L\r");
+};
+
 
 function handleConnection(self, socket) {
     if (TRACE) {
@@ -171,19 +175,23 @@ function handleConnection(self, socket) {
     
     self.client.write("\r");    // wake
     setTimeout(function() {
-    	self.querypower();
-    	self.queryinput();
-        self.emit("connect");
+    	self.querypower()
+    	self.queryinput()
+	self.queryaudioMode()
+        self.emit("connect")
     }, 100);
    setInterval(function() {
         self.querypower();
-    }, 250000);
+    }, 270000);
    setInterval(function() {
         self.querymute();
-    }, 350000);
+    }, 330000);
    setInterval(function() {
         self.queryinput();
     }, 300000);
+   setInterval(function() {
+        self.queryaudioMode();
+    }, 610000);
     self.socket = socket;
 }
 
@@ -263,13 +271,15 @@ function handleData(self, d) {
     }
     else if (data.startsWith("LM")) {       // listening mode
         var mode = data.substring(2);
+	updateDomoText(audioMode[mode],167);
         if (TRACE) {
-            console.log("AVR listening mode: " + mode);
+            console.log("AVR listening mode: " + audioMode[mode]);
         }
     }
     else if (data.startsWith("FL")) {       // FL display information
+	var display = hex2a(data.substring(4)).trim();
          if (TRACE && DETAIL) {
-             console.log("AVR FL: " + data);
+             console.log("AVR FL: " + display);
          }
     }
     else if (data.startsWith("RGB")) {      // input name information. informs on input names
@@ -306,20 +316,29 @@ function handleData(self, d) {
     }
 }
 
+function hex2a(hex) { 
+	var str = ''; 
+	for (var i = 0; i < hex.length; i += 2) 
+		str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+	 return str;
+}
+
 domoticz.on('connect', function () {
 	domoticz.publish('avr-controller/connected', 'true');
 	console.log("Domoticz MQTT: connected");
 });
 
 function updateDomo(id,lvl) {
-	var 	val = "Off";
-	if (lvl) {
-		val = "On";
+	var 	cmd = "Set Level";
+	if (lvl > 99) {
+		cmd = "On";
+	} else if (lvl < 1) {
+		cmd = "Off";
 	}
 	var state = {
 		'command': 'switchlight',
 		'idx': id,
-		'switchcmd': val,
+		'switchcmd': cmd,
 		'level': lvl
 	};
 	domoticz.publish('domoticz/in', JSON.stringify(state))
@@ -327,6 +346,21 @@ function updateDomo(id,lvl) {
 		console.log('DOMO: ' + JSON.stringify(state));
 	}
 }
+
+function updateDomoText(txt,id) {
+	var state = {
+		'command': 'udevice',
+		'idx': id,
+		'nvalue': 0,
+		'svalue': txt
+	};
+	domoticz.publish('domoticz/in', JSON.stringify(state))
+	if(TRACE) {
+		console.log('DOMO: ' + JSON.stringify(state));
+	}
+}
+
+
 
 function handleEnd(self) {
     if (TRACE) {
@@ -388,3 +422,173 @@ exports.Pioneer = Pioneer;
 exports.Inputs = Inputs;
 exports.pow = pow;
 exports.ext = ext;
+
+var audioMode = {
+	"0101":"[)(]PLIIxMOVIE",
+	"0102":"[)(]PLIIMOVIE",
+	"0103":"[)(]PLIIxMUSIC",
+	"0104":"[)(]PLIIMUSIC",
+	"0105":"[)(]PLIIxGAME",
+	"0106":"[)(]PLIIGAME",
+	"0107":"[)(]PROLOGIC",
+	"0108":"Neo:6CINEMA",
+	"0109":"Neo:6MUSIC",
+	"010a":"XMHDSurround",
+	"010b":"NEURALSURR",
+	"010c":"2chStraightDecode",
+	"010d":"[)(]PLIIzHEIGHT",
+	"010e":"WIDESURRMOVIE",
+	"010f":"WIDESURRMUSIC",
+	"0110":"STEREO",
+	"0111":"Neo:XCINEMA",
+	"0112":"Neo:XMUSIC",
+	"0113":"Neo:XGAME",
+	"0114":"NEURALSURROUND+Neo:XCINEMA",
+	"0115":"NEURALSURROUND+Neo:XMUSIC",
+	"0116":"NEURALSURROUND+Neo:XGAMES",
+	"1101":"[)(]PLIIxMOVIE",
+	"1102":"[)(]PLIIxMUSIC",
+	"1103":"[)(]DIGITALEX",
+	"1104":"DTS+Neo:6/DTS-HD+Neo:6",
+	"1105":"ESMATRIX",
+	"1106":"ESDISCRETE",
+	"1107":"DTS-ES8ch",
+	"1108":"multichStraightDecode",
+	"1109":"[)(]PLIIzHEIGHT",
+	"110a":"WIDESURRMOVIE",
+	"110b":"WIDESURRMUSIC",
+	"110c":"Neo:XCINEMA",
+	"110d":"Neo:XMUSIC",
+	"110e":"Neo:XGAME",
+	"0201":"ACTION",
+	"0202":"DRAMA",
+	"0203":"SCI-FI",
+	"0204":"MONOFILM",
+	"0205":"ENT.SHOW",
+	"0206":"EXPANDED",
+	"0207":"TVSURROUND",
+	"0208":"ADVANCEDGAME",
+	"0209":"SPORTS",
+	"020a":"CLASSICAL",
+	"020b":"ROCK/POP",
+	"020c":"UNPLUGGED",
+	"020d":"EXT.STEREO",
+	"020e":"PHONESSURR.",
+	"020f":"FRONTSTAGESURROUNDADVANCEFOCUS",
+	"0210":"FRONTSTAGESURROUNDADVANCEWIDE",
+	"0211":"SOUNDRETRIEVERAIR",
+	"0301":"[)(]PLIIxMOVIE+THX",
+	"0302":"[)(]PLIIMOVIE+THX",
+	"0303":"[)(]PL+THXCINEMA",
+	"0304":"Neo:6CINEMA+THX",
+	"0305":"THXCINEMA",
+	"0306":"[)(]PLIIxMUSIC+THX",
+	"0307":"[)(]PLIIMUSIC+THX",
+	"0308":"[)(]PL+THXMUSIC",
+	"0309":"Neo:6MUSIC+THX",
+	"030a":"THXMUSIC",
+	"030b":"[)(]PLIIxGAME+THX",
+	"030c":"[)(]PLIIGAME+THX",
+	"030d":"[)(]PL+THXGAMES",
+	"030e":"THXULTRA2GAMES",
+	"030f":"THXSELECT2GAMES",
+	"0310":"THXGAMES",
+	"0311":"[)(]PLIIz+THXCINEMA",
+	"0312":"[)(]PLIIz+THXMUSIC",
+	"0313":"[)(]PLIIz+THXGAMES",
+	"0314":"Neo:XCINEMA+THXCINEMA",
+	"0315":"Neo:XMUSIC+THXMUSIC",
+	"0316":"Neo:XGAMES+THXGAMES",
+	"1301":"THXSurrEX",
+	"1302":"Neo:6+THXCINEMA",
+	"1303":"ESMTRX+THXCINEMA",
+	"1304":"ESDISC+THXCINEMA",
+	"1305":"ES8ch+THXCINEMA",
+	"1306":"[)(]PLIIxMOVIE+THX",
+	"1307":"THXULTRA2CINEMA",
+	"1308":"THXSELECT2CINEMA",
+	"1309":"THXCINEMA",
+	"130a":"Neo:6+THXMUSIC",
+	"130b":"ESMTRX+THXMUSIC",
+	"130c":"ESDISC+THXMUSIC",
+	"130d":"ES8ch+THXMUSIC",
+	"130e":"[)(]PLIIxMUSIC+THX",
+	"130f":"THXULTRA2MUSIC",
+	"1310":"THXSELECT2MUSIC",
+	"1311":"THXMUSIC",
+	"1312":"Neo:6+THXGAMES",
+	"1313":"ESMTRX+THXGAMES",
+	"1314":"ESDISC+THXGAMES",
+	"1315":"ES8ch+THXGAMES",
+	"1316":"[)(]EX+THXGAMES",
+	"1317":"THXULTRA2GAMES",
+	"1318":"THXSELECT2GAMES",
+	"1319":"THXGAMES",
+	"131a":"[)(]PLIIz+THXCINEMA",
+	"131b":"[)(]PLIIz+THXMUSIC",
+	"131c":"[)(]PLIIz+THXGAMES",
+	"131d":"Neo:XCINEMA+THXCINEMA",
+	"131e":"Neo:XMUSIC+THXMUSIC",
+	"131f":"Neo:XGAME+THXGAMES",
+	"0401":"STEREO",
+	"0402":"[)(]PLIIMOVIE",
+	"0403":"[)(]PLIIxMOVIE",
+	"0404":"Neo:6CINEMA",
+	"0405":"AUTO SURROUND (StraightDecode)",
+	"0406":"[)(]DIGITALEX",
+	"0407":"[)(]PLIIxMOVIE",
+	"0408":"DTS+Neo:6",
+	"0409":"ESMATRIX",
+	"040a":"ESDISCRETE",
+	"040b":"DTS-ES8ch",
+	"040c":"XMHDSurround",
+	"040d":"NEURALSURR",
+	"040e":"RETRIEVERAIR",
+	"040f":"Neo:XCINEMA",
+	"0410":"Neo:XCINEMA",
+	"0501":"STEREO",
+	"0502":"[)(]PLIIMOVIE",
+	"0503":"[)(]PLIIxMOVIE",
+	"0504":"Neo:6CINEMA",
+	"0505":"ALCStraightDecode",
+	"0506":"[)(]DIGITALEX",
+	"0507":"[)(]PLIIxMOVIE",
+	"0508":"DTS+Neo:6",
+	"0509":"ESMATRIX",
+	"050a":"ESDISCRETE",
+	"050b":"DTS-ES8ch",
+	"050c":"XMHDSurround",
+	"050d":"NEURALSURR",
+	"050e":"RETRIEVERAIR",
+	"050f":"Neo:XCINEMA",
+	"0510":"Neo:XCINEMA",
+	"0601":"STEREO",
+	"0602":"[)(]PLIIMOVIE",
+	"0603":"[)(]PLIIxMOVIE",
+	"0604":"Neo:6CINEMA",
+	"0605":"STREAMDIRECTNORMALStraightDecode",
+	"0606":"[)(]DIGITALEX",
+	"0607":"[)(]PLIIxMOVIE",
+	"0608":"(nothing)",
+	"0609":"ESMATRIX",
+	"060a":"ESDISCRETE",
+	"060b":"DTS-ES8ch",
+	"060c":"Neo:XCINEMA",
+	"060d":"Neo:XCINEMA",
+	"0701":"STREAMDIRECTPURE2ch",
+	"0702":"[)(]PLIIMOVIE",
+	"0703":"[)(]PLIIxMOVIE",
+	"0704":"Neo:6CINEMA",
+	"0705":"STREAMDIRECTPUREStraightDecode",
+	"0706":"[)(]DIGITALEX",
+	"0707":"[)(]PLIIxMOVIE",
+	"0708":"(nothing)",
+	"0709":"ESMATRIX",
+	"070a":"ESDISCRETE",
+	"070b":"DTS-ES8ch",
+	"070c":"Neo:XCINEMA",
+	"070d":"Neo:XCINEMA",
+	"0881":"OPTIMUM",
+	"0e01":"HDMITHROUGH",
+	"0f01":"MULTICHIN"
+};
