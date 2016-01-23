@@ -66,9 +66,9 @@ Pioneer.prototype.queryinput = function() {
  */
 Pioneer.prototype.power = function(on) {
     if (TRACE) {
-        console.log("turning power: " + on);
+        console.log("AVR: turning power: " + on);
     }
-    if (on) {
+    if (on) {				// Send this twice per manual.
         this.client.write("PO\r");
         this.client.write("PO\r");
     }
@@ -82,7 +82,7 @@ Pioneer.prototype.power = function(on) {
  */
 Pioneer.prototype.mute = function(on) {
     if (TRACE) {
-        console.log("turning mute: " + on);
+        console.log("AVR: turning mute: " + on);
     }
     if (on) {
         this.client.write("MO\r");
@@ -95,7 +95,7 @@ Pioneer.prototype.mute = function(on) {
 
 Pioneer.prototype.muteToggle = function() {
     if (TRACE) {
-        console.log("toggling mute");
+        console.log("AVR: toggling mute");
     }
         this.client.write("MZ\r");
 };
@@ -166,7 +166,7 @@ Pioneer.prototype.listeningMode = function(mode) {
 
 function handleConnection(self, socket) {
     if (TRACE) {
-        console.log("got connection.");
+        console.log("AVR: got connection.");
     }
     
     self.client.write("\r");    // wake
@@ -198,7 +198,7 @@ function handleData(self, d) {
     if (data.startsWith("PWR")) {        // power status
         var pwr = (data == "PWR0");   // PWR0 = on, PWR1 = off
         if (TRACE) {
-            console.log("got power: " + pwr);
+            console.log("AVR: " + pwr);
         }
         if (!pwr) {
 		updateDomo(145,0);
@@ -213,7 +213,7 @@ function handleData(self, d) {
         var db = (parseInt(vol) - 161) / 2;
         
         if (TRACE) {
-            console.log("got volume: " + db + "dB (" + vol + ")");
+            console.log("AVR IN: volume " + db + "dB (" + vol + ")");
         }
         
         self.emit("volume", db);
@@ -221,7 +221,7 @@ function handleData(self, d) {
     else if (data.startsWith("MUT")) {   // mute status
         var mute = data.endsWith("0");  // MUT0 = muted, MUT1 = not muted
         if (TRACE) {
-            console.log("got mute: " + mute);
+            console.log("AVR: mute: " + mute);
         }
         if (mute && pow && ext) {
 		updateDomo(105,100);
@@ -233,7 +233,7 @@ function handleData(self, d) {
     else if (data.startsWith("FN")) {
         input = data.substr(2, 2);
         if (TRACE) {
-            console.log("got input: " + input + " : " + self.inputNames[input]);
+            console.log("AVR input: " + input + " : " + self.inputNames[input]);
         }
         if(input == 22 && pow) {
 		updateDomo(145,30);	// Playstation 4
@@ -264,12 +264,12 @@ function handleData(self, d) {
     else if (data.startsWith("LM")) {       // listening mode
         var mode = data.substring(2);
         if (TRACE) {
-            console.log("got listening mode: " + mode);
+            console.log("AVR listening mode: " + mode);
         }
     }
     else if (data.startsWith("FL")) {       // FL display information
          if (TRACE && DETAIL) {
-             console.log("got FL: " + data);
+             console.log("AVR FL: " + data);
          }
     }
     else if (data.startsWith("RGB")) {      // input name information. informs on input names
@@ -282,7 +282,7 @@ function handleData(self, d) {
                 // }
                 self.inputNames[inputId] = data.substr(6);
                 if (TRACE && DETAIL) {
-                	console.log("set input " + input + " to " + self.inputNames[inputId]);
+                	console.log("AVR: set input " + input + " to " + self.inputNames[inputId]);
                 }
                 self.emit("inputName", inputId, self.inputNames[inputId]);
                 break;
@@ -291,17 +291,17 @@ function handleData(self, d) {
     }
     else if (data.startsWith("RGC")) {
          if (TRACE && DETAIL) {
-             console.log("got RGC: " + data);
+             console.log("AVR RGC: " + data);
          }
     }
     else if (data.startsWith("RGF")) {
          if (TRACE && DETAIL) {
-             console.log("got RGF: " + data);
+             console.log("AVR RGF: " + data);
          }
     }
     else if (data.length > 0) {
         if (TRACE) {
-            console.log("got data: " + data);
+            console.log("AVR data: " + data);
         }
     }
 }
