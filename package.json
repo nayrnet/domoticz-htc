@@ -4,25 +4,32 @@
   "description": "NodeJS AVR Controller",
   "main": "server.js",
   "dependencies": {
-    "help": "^2.1.2",
-    "events": "^1.1.0",
-    "serialport": "^2.0.6",
     "crypto": "^0.0.3",
+    "mqtt": "^1.6.3",
+    "events": "^1.1.0",
     "daemonize2": "^0.4.2",
+    "serialport": "^2.0.6",
     "node-powermate": "^0.0.3",
-    "request": "^2.67.0",
     "util": "^0.10.3",
+    "request": "^2.67.0",
+    "help": "^2.1.2",
     "net": "^1.0.2"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo 0",
     "start": "node server.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nayrnet/avr-controller.git"
   },
+  "keywords": [
+    "Pioneer",
+    "Sharp",
+    "Aquos",
+    "Domoticz"
+  ],
   "author": "Ryan Hunt",
   "license": "GPL-3.0",
   "bugs": {
