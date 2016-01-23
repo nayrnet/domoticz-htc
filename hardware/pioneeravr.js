@@ -1,13 +1,14 @@
-// Pioneer AVR Hardware - Sends Commands and Monitors for changes.
+// Pioneer AVR Hardware - Sends Commands and Notifies Domoticz of Updates
 
-var 	util	= require('util'),
-    	net    	= require('net'),
-    	events 	= require('events'),
-    	request = require('request');
-
-var TRACE = true;
-var DETAIL = true;		// detail logging flag
-var domoURI = "http://dev:dev@localhost:8080"
+var 	util		= require('util'),
+    	net    		= require('net'),
+    	events 		= require('events'),
+    	request 	= require('request'),
+	mqtt    	= require('mqtt'),
+	domoticz	= mqtt.connect('mqtt://127.0.0.1'),
+	TRACE 		= true,
+	DETAIL	 	= true,
+	domoURI 	= "http://dev:dev@localhost:8080";
 
 var Pioneer = function(options) {
 	events.EventEmitter.call(this); // inherit from EventEmitter
@@ -305,34 +306,38 @@ function handleData(self, d) {
     }
 }
 
-function updateDomo(idx,level) {
-	var 	switchcmd,
-		jsonURI = "/json.htm?type=command&param=switchlight&idx=";
+domoticz.on('connect', function () {
+	domoticz.publish('avr-controller/connected', 'true');
+	console.log("Domoticz MQTT: connected");
+});
 
-	if (level > 99) {
-		switchcmd = "On";
-	} else if (level < 1) {
-		switchcmd = "Off";
-	} else {
-		switchcmd = "Set%20Level&level=" + level;
+function updateDomo(id,lvl) {
+	var 	val = "Off";
+	if (lvl) {
+		val = "On";
 	}
-	if (TRACE) {
-		console.log("DOMO: " + domoURI + jsonURI + idx + "&switchcmd=" + switchcmd);
+	var state = {
+		'command': 'switchlight',
+		'idx': id,
+		'switchcmd': val,
+		'level': lvl
+	};
+	domoticz.publish('domoticz/in', JSON.stringify(state))
+	if(TRACE) {
+		console.log('DOMO: ' + JSON.stringify(state));
 	}
-	request(domoURI + jsonURI + idx + "&switchcmd=" + switchcmd);
 }
 
 function handleEnd(self) {
     if (TRACE) {
-        console.log("connection ended");
+        console.log("AVR: connection ended");
     }
-
     self.emit("end");
 }
 
 function handleError(self, err) {
     if (TRACE) {
-        console.log("connection error: " + err.message);
+        console.log("AVR: connection error: " + err.message);
     }
 
     self.emit("error", err);

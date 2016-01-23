@@ -18,7 +18,7 @@ var options = {
 	serialport: 	"/dev/ttyUSB-TV",
 	serialbaud: 	"9600",
 	// Debug Logging
-	log: 		false
+	log: 		true
 };
 
 // Setup Hardware

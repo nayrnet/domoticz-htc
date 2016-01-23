@@ -9,7 +9,7 @@ var 	serialport 	= require("serialport"),
 // Defaults
 var 	TRACE 	= false,
 	serialdevice = "/dev/ttyUSB-TV",
-	serialbaud = 9600,
+	serialbaud = 9600;
 
 var SharpTV = function(options) {
 	events.EventEmitter.call(this); 	// inherit from EventEmitter
