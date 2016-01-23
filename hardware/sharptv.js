@@ -42,13 +42,13 @@ sp.on("data", function (data) {
 SharpTV.prototype.power = function(value) {
 	var data = "POWR" + value + "   \r";	// Needs padding, has to be 8-Bit
 	sp.write(data);
-	if(TRACE) { console.log("TV SEND: " + data + "\r"); }
+	if(TRACE) { console.log("TV SEND: " + data); }
 }
 
 SharpTV.prototype.mute = function(value) {
 	var data = "MUTE" + value + "   \r";	// Needs padding, has to be 8-Bit
 	sp.write(data);
-	if(TRACE) { console.log("TV SEND: " + data + "\r"); }
+	if(TRACE) { console.log("TV SEND: " + data); }
 }
 
 exports.SharpTV = SharpTV;
