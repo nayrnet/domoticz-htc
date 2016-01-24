@@ -89,32 +89,19 @@ Pioneer.prototype.muteToggle = function() {
 	this.client.write("MZ\r");
 };
 
-Pioneer.prototype.volume = function(db) {
-    // [0 .. 185] 1 = -80dB , 161 = 0dB, 185 = +12dB
+Pioneer.prototype.volume = function(level) {
 	if (TRACE) {
-		console.log("setting volume db: " + db);
+		console.log("setting volume: " + level + "%");
 	}
-	var val = 0;
-	if (typeof db === "undefined" || db === null) {
-		val = 0;
-	}
-	else if (db < -80) {
-		 val = 0;
-	}
-	else if (db > 12) {
-		val = 185;
-	}
-	else {
-		val = Math.round((db * 2) + 161);
-	}
-	var level = val.toString();
-	while (level.length < 3) {
-		level = "0" + level;
+	val = Math.round(level * 1.85).toString();
+	
+	while (val.length < 3) {
+		val = "0" + level;
 	}
 	if (TRACE) {
         	console.log("setting volume level: " + level);
 	}
-	this.client.write(level + "VL\r");
+	this.client.write(val + "VL\r");
 };
 
 Pioneer.prototype.volumeUp = function() {
@@ -141,6 +128,10 @@ Pioneer.prototype.queryaudioMode = function(mode) {
 	this.client.write("?L\r");
 };
 
+Pioneer.prototype.queryVolume = function(mode) {
+	this.client.write("?V\r");
+};
+
 // On Connection refresh device status and setup timers to update on occasion.
 function handleConnection(self, socket) {
    	if (TRACE) {
@@ -150,9 +141,12 @@ function handleConnection(self, socket) {
     	setTimeout(function() {
     		self.querypower()
     		self.queryinput()
-		self.queryaudioMode()
         	self.emit("connect")
-    	}, 100);
+    	}, 500);
+    	setTimeout(function() {
+		self.queryaudioMode()
+		self.queryVolume()
+    	}, 2000);
    	setInterval(function() {
         	self.querypower();
     	}, 270000);
@@ -189,13 +183,13 @@ function handleData(self, d) {
         	var vol = data.substr(3, 3);
         
         	// translate to dB.
-        	var db = (parseInt(vol) - 161) / 2;
+        	var val = Math.round((parseInt(vol)/1.85));
         
         	if (TRACE) {
-            		console.log("AVR IN: volume " + db + "dB (" + vol + ")");
+            		console.log("AVR: volume " + val + "%");
         	}
-        
-        	self.emit("volume", db);
+        	updateDomo(170,val);
+        	self.emit("volume", val);
     	}
     	else if (data.startsWith("MUT")) {   // mute status
         	var mute = data.endsWith("0");  // MUT0 = muted, MUT1 = not muted
@@ -222,17 +216,17 @@ function handleData(self, d) {
     	}
     	else if (data.startsWith("SSA")) {
          	if (TRACE && DETAIL) {
-             		console.log("got SSA: " + data);
+             		console.log("AVR SSA: " + data);
          	}
     	}
     	else if (data.startsWith("APR")) {
          	if (TRACE && DETAIL) {
-             		console.log("got APR: " + data);
+             		console.log("AVR APR: " + data);
          	}
     	}
     	else if (data.startsWith("BPR")) {
          	if (TRACE && DETAIL) {
-             		console.log("got BPR: " + data);
+             		console.log("AVR BPR: " + data);
          	}
     	}
     	else if (data.startsWith("LM")) {       				// listening mode
