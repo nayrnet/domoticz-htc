@@ -1,6 +1,6 @@
 # Node AVR Controller
 
-This program communicates with my tv via rs232 and with my audio receiver via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob and it syncs up with my Home Automation platform.
+This program communicates with my tv via rs232 and with my audio receiver via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob and it syncs up with my Home Automation platform via MQTT.
 
 This relieves me of a universal remote, each device has its own remote/gamepad and the PowerMate provides the missing functionality. The Nexus player is the primary device/remote and it has custom software to provide input changes and other functions missing on the bluetooth Android remote.
 
@@ -22,6 +22,7 @@ There is remote control via Web browser through a Domoticz Virtual Selector Swit
 * Domoticz - http://www.domoticz.com
 * Debian Jessie w/NodeJS from NodeSource repository
 * AndroidTV OSD Remote - https://github.com/nayrnet/androidtv-osd-remote
+* Mosquitto MQTT Broker
 
 ### PowerMate Functions: 
 * Left/Right = Vol Down/Vol Up
@@ -55,9 +56,7 @@ Switch Config:
 ![Domoticz Switch Config](screenshots/screenshot-config.png)
 
 #### TO-DO:
-* AVR Display & Status in Domoticz
 * Volume Slider in Domoticz
-* MQTT Interface to Domoticz instead of HTTP Requests.
 
 #### Support:
 > No support provided or warranty impied, this project is avilable for educational use and my own personal tracking.

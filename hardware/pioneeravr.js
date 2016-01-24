@@ -187,11 +187,8 @@ function handleConnection(self, socket) {
         self.querymute();
     }, 330000);
    setInterval(function() {
-        self.queryinput();
-    }, 300000);
-   setInterval(function() {
-        self.queryaudioMode();
-    }, 610000);
+	self.queryaudioMode()
+    }, 910000);
     self.socket = socket;
 }
 
@@ -271,7 +268,9 @@ function handleData(self, d) {
     }
     else if (data.startsWith("LM")) {       // listening mode
         var mode = data.substring(2);
-	updateDomoText(audioMode[mode],167);
+	if (pow) {
+		updateDomoText(audioMode[mode],167);
+	}
         if (TRACE) {
             console.log("AVR listening mode: " + audioMode[mode]);
         }
