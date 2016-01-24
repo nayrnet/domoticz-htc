@@ -21,113 +21,112 @@ var Pioneer = function(options) {
 util.inherits(Pioneer, events.EventEmitter);
 
 Pioneer.prototype.connect = function(options) {
-    var self = this;
-    var client = net.connect(options);
+	var self = this;
+    	var client = net.connect(options);
 
-    client.on("connect", function (socket) {
-        handleConnection(self, socket);
-    });
+    	client.on("connect", function (socket) {
+        	handleConnection(self, socket);
+    	});
     
-    client.on("data", function(data) {
-        handleData(self, data);
-     });
+    	client.on("data", function(data) {
+        	handleData(self, data);
+     	});
 
-    client.on("end", function () {
-        handleEnd(self);
-    });
+    	client.on("end", function () {
+        	handleEnd(self);
+    	});
 
-    client.on("error", function(err) {
-        handleError(self, err);
-    });
-
-    return client;
+    	client.on("error", function(err) {
+        	handleError(self, err);
+    	});
+    	return client;
 };
 
 Pioneer.prototype.querypower = function() {	
-    var self = this;
-    self.client.write("?P\r");		// query power state
+    	var self = this;
+    	self.client.write("?P\r");		// query power state
 }
 
 Pioneer.prototype.querymute = function() {	
-    var self = this;
-    self.client.write("?M\r");		// query mute state
+    	var self = this;
+    	self.client.write("?M\r");		// query mute state
 }
 
 Pioneer.prototype.queryinput = function() {	
-    var self = this;
-    self.client.write("?F\r");		// query input
+    	var self = this;
+	self.client.write("?F\r");		// query input
 }
 
 Pioneer.prototype.power = function(on) {
-    if (TRACE) {
-        console.log("AVR: turning power: " + on);
-    }
-    if (on) {				// Send this twice per manual.
-        this.client.write("PO\r");
-        this.client.write("PO\r");
-    }
-    else {
+    	if (TRACE) {
+        	console.log("AVR: turning power: " + on);
+    	}
+    	if (on) {				// Send this twice per manual.
+        	this.client.write("PO\r");
+        	this.client.write("PO\r");
+    	}
+    	else {
         this.client.write("PF\r");
     }
 };
 
 Pioneer.prototype.mute = function(on) {
-    if (TRACE) {
-        console.log("AVR: turning mute: " + on);
-    }
-    if (on) {
-        this.client.write("MO\r");
-    }
-    else {
-        this.client.write("MF\r");
-    }
+    	if (TRACE) {
+        	console.log("AVR: turning mute: " + on);
+    	}
+    	if (on) {
+        	this.client.write("MO\r");
+    	}
+	else {
+        	this.client.write("MF\r");
+	}
 };
 
 Pioneer.prototype.muteToggle = function() {
-    if (TRACE) {
-        console.log("AVR: toggling mute");
-    }
-        this.client.write("MZ\r");
+	if (TRACE) {
+		console.log("AVR: toggling mute");
+	}
+	this.client.write("MZ\r");
 };
 
 Pioneer.prototype.volume = function(db) {
     // [0 .. 185] 1 = -80dB , 161 = 0dB, 185 = +12dB
-    if (TRACE) {
-        console.log("setting volume db: " + db);
-    }
-    var val = 0;
-    if (typeof db === "undefined" || db === null) {
-        val = 0;
-    }
-    else if (db < -80) {
-        val = 0;
-    }
-    else if (db > 12) {
-        val = 185;
-    }
-    else {
-        val = Math.round((db * 2) + 161);
-    }
-    var level = val.toString();
-    while (level.length < 3) {
-        level = "0" + level;
-    }
-    if (TRACE) {
-        console.log("setting volume level: " + level);
-    }
-    this.client.write(level + "VL\r");
+	if (TRACE) {
+		console.log("setting volume db: " + db);
+	}
+	var val = 0;
+	if (typeof db === "undefined" || db === null) {
+		val = 0;
+	}
+	else if (db < -80) {
+		 val = 0;
+	}
+	else if (db > 12) {
+		val = 185;
+	}
+	else {
+		val = Math.round((db * 2) + 161);
+	}
+	var level = val.toString();
+	while (level.length < 3) {
+		level = "0" + level;
+	}
+	if (TRACE) {
+        	console.log("setting volume level: " + level);
+	}
+	this.client.write(level + "VL\r");
 };
 
 Pioneer.prototype.volumeUp = function() {
-    this.client.write("VU\r");
+	this.client.write("VU\r");
 };
 
 Pioneer.prototype.volumeDown = function() {
-    this.client.write("VD\r");
+	this.client.write("VD\r");
 };
 
 Pioneer.prototype.selectInput = function(input) {
-    this.client.write(input + "FN\r");
+	this.client.write(input + "FN\r");
 };
 
 Pioneer.prototype.queryInputName = function(inputId) {
@@ -142,146 +141,147 @@ Pioneer.prototype.queryaudioMode = function(mode) {
 	this.client.write("?L\r");
 };
 
-
+// On Connection refresh device status and setup timers to update on occasion.
 function handleConnection(self, socket) {
-    if (TRACE) {
-        console.log("AVR: got connection.");
-    }
-    self.client.write("\r");    // wake
-    setTimeout(function() {
-    	self.querypower()
-    	self.queryinput()
-	self.queryaudioMode()
-        self.emit("connect")
-    }, 100);
-   setInterval(function() {
-        self.querypower();
-    }, 270000);
-   setInterval(function() {
-        self.querymute();
-    }, 330000);
-   setInterval(function() {
-	self.queryaudioMode()
-    }, 910000);
-    self.socket = socket;
+   	if (TRACE) {
+        	console.log("AVR: got connection.");
+    	}
+    	self.client.write("\r");    // wake
+    	setTimeout(function() {
+    		self.querypower()
+    		self.queryinput()
+		self.queryaudioMode()
+        	self.emit("connect")
+    	}, 100);
+   	setInterval(function() {
+        	self.querypower();
+    	}, 270000);
+   	setInterval(function() {
+        	self.querymute();
+    	}, 330000);
+   	setInterval(function() {
+		self.queryaudioMode()
+    	}, 910000);
+    	self.socket = socket;
 }
 
+// Monitor AVR and send updates to Domoticz
 function handleData(self, d) {
-    var input;    
-    var data = d.toString(); // make sure it's a string
-    var length = data.lastIndexOf('\r');
-    data = data.substr(0, length);
+    	var input;    
+    	var data = d.toString(); // make sure it's a string
+    	var length = data.lastIndexOf('\r');
+    	data = data.substr(0, length);
 
-    // TODO implement a message to handler mapping instead of this big if-then statement
+    	// TODO implement a message to handler mapping instead of this big if-then statement
 
-    if (data.startsWith("PWR")) {        // power status
-        var pwr = (data == "PWR0");   // PWR0 = on, PWR1 = off
-        if (TRACE) {
-            console.log("AVR: " + pwr);
-        }
-        if (!pwr) {
-		updateDomo(145,0);
-	}
-	pow = pwr;
-        self.emit("power", pwr);
-    }
-    else if (data.startsWith("VOL")) {   // volume status
-        var vol = data.substr(3, 3);
+    	if (data.startsWith("PWR")) {        // power status
+        	var pwr = (data == "PWR0");   // PWR0 = on, PWR1 = off
+        	if (TRACE) {
+            		console.log("AVR: " + pwr);
+        	}
+        	if (!pwr) {
+			updateDomo(145,0);
+		}
+		pow = pwr;
+        	self.emit("power", pwr);
+    	}
+    	else if (data.startsWith("VOL")) {   // volume status
+        	var vol = data.substr(3, 3);
         
-        // translate to dB.
-        var db = (parseInt(vol) - 161) / 2;
+        	// translate to dB.
+        	var db = (parseInt(vol) - 161) / 2;
         
-        if (TRACE) {
-            console.log("AVR IN: volume " + db + "dB (" + vol + ")");
-        }
+        	if (TRACE) {
+            		console.log("AVR IN: volume " + db + "dB (" + vol + ")");
+        	}
         
-        self.emit("volume", db);
-    }
-    else if (data.startsWith("MUT")) {   // mute status
-        var mute = data.endsWith("0");  // MUT0 = muted, MUT1 = not muted
-        if (TRACE) {
-            console.log("AVR: mute: " + mute);
-        }
-        if (mute && pow && ext) {
-		updateDomo(105,100);
-	} else if (ext) {
-		updateDomo(105,0);
-	}
-        self.emit("mute", mute);
-    }
-    else if (data.startsWith("FN")) {
-        input = data.substr(2, 2);
-        if (TRACE) {
-            console.log("AVR input: " + input + " : " + self.inputNames[input]);
-        }
-        if(input == 22 && pow) { updateDomo(145,30) }		// Playstation 4
-        else if (input == 4 && pow) { updateDomo(145,20) }	// Playstation 3
-        else if (input == 15 && pow) { updateDomo(145,10) } 	// Nexus Player
-        else if (input == 24 && pow) { updateDomo(145,40) }	// IP Cameras
-        self.emit("input", input, self.inputNames[input]);
-    }
-    else if (data.startsWith("SSA")) {
-         if (TRACE && DETAIL) {
-             console.log("got SSA: " + data);
-         }
-    }
-    else if (data.startsWith("APR")) {
-         if (TRACE && DETAIL) {
-             console.log("got APR: " + data);
-         }
-    }
-    else if (data.startsWith("BPR")) {
-         if (TRACE && DETAIL) {
-             console.log("got BPR: " + data);
-         }
-    }
-    else if (data.startsWith("LM")) {       				// listening mode
-        var mode = data.substring(2);
-	if (pow) {
-		updateDomoText(167,listeningModes[mode]);
-	}
-        if (TRACE) {
-            console.log("AVR listening mode: " + listeningModes[mode]);
-        }
-    }
-    else if (data.startsWith("FL")) {       				// display information
-	var display = hex2a(data.substring(4)).trim();
-	if (TRACE && DETAIL) {
-		console.log("AVR FL: " + display);
-	}
-    }
-    else if (data.startsWith("RGB")) {      				// input name information. informs on input names
-        // handle input info
-        var inputId = data.substr(3, 2);
-        for (input in Inputs) {
-            if (Inputs[input] == inputId) {
-                // if (data.substr(5, 1) == "0") {
-                    // console.log("default input name")
-                // }
-                self.inputNames[inputId] = data.substr(6);
-                if (TRACE && DETAIL) {
-                	console.log("AVR: set input " + input + " to " + self.inputNames[inputId]);
-                }
-                self.emit("inputName", inputId, self.inputNames[inputId]);
-                break;
-            }
-        } 
-    }
-    else if (data.startsWith("RGC")) {
-         if (TRACE && DETAIL) {
-             console.log("AVR RGC: " + data);
-         }
-    }
-    else if (data.startsWith("RGF")) {
-         if (TRACE && DETAIL) {
-             console.log("AVR RGF: " + data);
-         }
-    }
-    else if (data.length > 0) {
-        if (TRACE) {
-            console.log("AVR data: " + data);
-        }
-    }
+        	self.emit("volume", db);
+    	}
+    	else if (data.startsWith("MUT")) {   // mute status
+        	var mute = data.endsWith("0");  // MUT0 = muted, MUT1 = not muted
+        	if (TRACE) {
+            		console.log("AVR: mute: " + mute);
+        	}
+        	if (mute && pow && ext) {
+			updateDomo(105,100);
+		} else if (ext) {
+			updateDomo(105,0);
+		}
+        	self.emit("mute", mute);
+    	}
+    	else if (data.startsWith("FN")) {
+        	input = data.substr(2, 2);
+        	if (TRACE) {
+            		console.log("AVR input: " + input + " : " + self.inputNames[input]);
+        	}
+        	if(input == 22 && pow) { updateDomo(145,30) }		// Playstation 4
+        	else if (input == 4 && pow) { updateDomo(145,20) }	// Playstation 3
+        	else if (input == 15 && pow) { updateDomo(145,10) } 	// Nexus Player
+        	else if (input == 24 && pow) { updateDomo(145,40) }	// IP Cameras
+        	self.emit("input", input, self.inputNames[input]);
+    	}
+    	else if (data.startsWith("SSA")) {
+         	if (TRACE && DETAIL) {
+             		console.log("got SSA: " + data);
+         	}
+    	}
+    	else if (data.startsWith("APR")) {
+         	if (TRACE && DETAIL) {
+             		console.log("got APR: " + data);
+         	}
+    	}
+    	else if (data.startsWith("BPR")) {
+         	if (TRACE && DETAIL) {
+             		console.log("got BPR: " + data);
+         	}
+    	}
+    	else if (data.startsWith("LM")) {       				// listening mode
+        	var mode = data.substring(2);
+		if (pow) {
+			updateDomoText(167,listeningModes[mode]);
+		}
+        	if (TRACE) {
+            		console.log("AVR listening mode: " + listeningModes[mode]);
+        	}
+    	}
+    	else if (data.startsWith("FL")) {       				// display information
+		var display = hex2a(data.substring(4)).trim();
+		if (TRACE && DETAIL) {
+			console.log("AVR FL: " + display);
+		}
+    	}
+    	else if (data.startsWith("RGB")) {      				// input name information. informs on input names
+        	// handle input info
+        	var inputId = data.substr(3, 2);
+        	for (input in Inputs) {
+            		if (Inputs[input] == inputId) {
+                		// if (data.substr(5, 1) == "0") {
+                    		// console.log("default input name")
+                		// }
+                		self.inputNames[inputId] = data.substr(6);
+                		if (TRACE && DETAIL) {
+                			console.log("AVR: set input " + input + " to " + self.inputNames[inputId]);
+                		}
+                		self.emit("inputName", inputId, self.inputNames[inputId]);
+                		break;
+            		}
+        	} 
+    	}
+    	else if (data.startsWith("RGC")) {
+        	if (TRACE && DETAIL) {
+             		console.log("AVR RGC: " + data);
+         	}
+    	}
+    	else if (data.startsWith("RGF")) {
+         	if (TRACE && DETAIL) {
+             		console.log("AVR RGF: " + data);
+         	}
+    	}
+    	else if (data.length > 0) {
+        	if (TRACE) {
+            		console.log("AVR data: " + data);
+        	}
+    	}
 }
 
 function hex2a(hex) { 
