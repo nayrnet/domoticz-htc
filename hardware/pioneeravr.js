@@ -1,5 +1,5 @@
+#!/usr/bin/nodejs
 // Pioneer AVR Hardware - Sends Commands and Notifies Domoticz of Updates
-
 var 	util		= require('util'),
     	net    		= require('net'),
     	events 		= require('events'),
