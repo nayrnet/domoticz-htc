@@ -47,23 +47,17 @@ Pioneer.prototype.querypower = function() {
     var self = this;
     self.client.write("?P\r");		// query power state
 }
+
 Pioneer.prototype.querymute = function() {	
     var self = this;
     self.client.write("?M\r");		// query mute state
 }
+
 Pioneer.prototype.queryinput = function() {	
     var self = this;
     self.client.write("?F\r");		// query input
 }
 
-
-
-
-
-
-/**
- * Turn unit power on or off
- */
 Pioneer.prototype.power = function(on) {
     if (TRACE) {
         console.log("AVR: turning power: " + on);
@@ -77,9 +71,6 @@ Pioneer.prototype.power = function(on) {
     }
 };
 
-/**
- * Turn mute on or off
- */
 Pioneer.prototype.mute = function(on) {
     if (TRACE) {
         console.log("AVR: turning mute: " + on);
@@ -92,7 +83,6 @@ Pioneer.prototype.mute = function(on) {
     }
 };
 
-
 Pioneer.prototype.muteToggle = function() {
     if (TRACE) {
         console.log("AVR: toggling mute");
@@ -100,12 +90,6 @@ Pioneer.prototype.muteToggle = function() {
         this.client.write("MZ\r");
 };
 
-
-
-/**
- * 
- * @param {Object} db from -80 to +12
- */
 Pioneer.prototype.volume = function(db) {
     // [0 .. 185] 1 = -80dB , 161 = 0dB, 185 = +12dB
     if (TRACE) {
@@ -142,29 +126,20 @@ Pioneer.prototype.volumeDown = function() {
     this.client.write("VD\r");
 };
 
-/**
- * Set the input
- */
 Pioneer.prototype.selectInput = function(input) {
     this.client.write(input + "FN\r");
 };
 
-/**
- * Query the input name
- */
 Pioneer.prototype.queryInputName = function(inputId) {
 	this.client.write("?RGB" + inputId + "\r");
 }
 
-/**
- * Set the listening mode
- */
 Pioneer.prototype.listeningMode = function(mode) {
-    this.client.write("MF\r");
+	this.client.write(mode + "SR\r");
 };
 
 Pioneer.prototype.queryaudioMode = function(mode) {
-    this.client.write("?L\r");
+	this.client.write("?L\r");
 };
 
 
@@ -172,7 +147,6 @@ function handleConnection(self, socket) {
     if (TRACE) {
         console.log("AVR: got connection.");
     }
-    
     self.client.write("\r");    // wake
     setTimeout(function() {
     	self.querypower()
@@ -240,15 +214,10 @@ function handleData(self, d) {
         if (TRACE) {
             console.log("AVR input: " + input + " : " + self.inputNames[input]);
         }
-        if(input == 22 && pow) {
-		updateDomo(145,30);	// Playstation 4
-        }else if(input == 4 && pow) {
-		updateDomo(145,20);	// Playstation 3
-        }else if(input == 15 && pow) {
-		updateDomo(145,10);	// Nexus Player
-        }else if(input == 24 && pow) {
-		updateDomo(145,40);	// IP Cameras
-        }
+        if(input == 22 && pow) { updateDomo(145,30) }		// Playstation 4
+        else if (input == 4 && pow) { updateDomo(145,20) }	// Playstation 3
+        else if (input == 15 && pow) { updateDomo(145,10) } 	// Nexus Player
+        else if (input == 24 && pow) { updateDomo(145,40) }	// IP Cameras
         self.emit("input", input, self.inputNames[input]);
     }
     else if (data.startsWith("SSA")) {
@@ -266,22 +235,22 @@ function handleData(self, d) {
              console.log("got BPR: " + data);
          }
     }
-    else if (data.startsWith("LM")) {       // listening mode
+    else if (data.startsWith("LM")) {       				// listening mode
         var mode = data.substring(2);
 	if (pow) {
-		updateDomoText(audioMode[mode],167);
+		updateDomoText(167,listeningModes[mode]);
 	}
         if (TRACE) {
-            console.log("AVR listening mode: " + audioMode[mode]);
+            console.log("AVR listening mode: " + listeningModes[mode]);
         }
     }
-    else if (data.startsWith("FL")) {       // FL display information
+    else if (data.startsWith("FL")) {       				// display information
 	var display = hex2a(data.substring(4)).trim();
-         if (TRACE && DETAIL) {
-             console.log("AVR FL: " + display);
-         }
+	if (TRACE && DETAIL) {
+		console.log("AVR FL: " + display);
+	}
     }
-    else if (data.startsWith("RGB")) {      // input name information. informs on input names
+    else if (data.startsWith("RGB")) {      				// input name information. informs on input names
         // handle input info
         var inputId = data.substr(3, 2);
         for (input in Inputs) {
@@ -319,7 +288,7 @@ function hex2a(hex) {
 	var str = ''; 
 	for (var i = 0; i < hex.length; i += 2) 
 		str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-	 return str;
+	return str;
 }
 
 domoticz.on('connect', function () {
@@ -329,90 +298,47 @@ domoticz.on('connect', function () {
 
 function updateDomo(id,lvl) {
 	var 	cmd = "Set Level";
-	if (lvl > 99) {
-		cmd = "On";
-	} else if (lvl < 1) {
-		cmd = "Off";
-	}
-	var state = {
-		'command': 'switchlight',
-		'idx': id,
-		'switchcmd': cmd,
-		'level': lvl
-	};
+	if (lvl > 99) { cmd = "On"; } else if (lvl < 1) { cmd = "Off"; }
+	var state = { 'command': 'switchlight', 'idx': id, 'switchcmd': cmd, 'level': lvl };
 	domoticz.publish('domoticz/in', JSON.stringify(state))
 	if(TRACE) {
 		console.log('DOMO: ' + JSON.stringify(state));
 	}
 }
 
-function updateDomoText(txt,id) {
-	var state = {
-		'command': 'udevice',
-		'idx': id,
-		'nvalue': 0,
-		'svalue': txt
-	};
+function updateDomoText(id,txt) {
+	var state = { 'command': 'udevice', 'idx': id, 'nvalue': 0, 'svalue': txt };
 	domoticz.publish('domoticz/in', JSON.stringify(state))
 	if(TRACE) {
 		console.log('DOMO: ' + JSON.stringify(state));
 	}
 }
-
-
 
 function handleEnd(self) {
-    if (TRACE) {
-        console.log("AVR: connection ended");
-    }
-    self.emit("end");
+	if (TRACE) {
+		console.log("AVR: connection ended");
+	}
+	self.emit("end");
 }
 
 function handleError(self, err) {
-    if (TRACE) {
-        console.log("AVR: connection error: " + err.message);
-    }
-
-    self.emit("error", err);
+	if (TRACE) {
+		console.log("AVR: connection error: " + err.message);
+	}
+	self.emit("error", err);
 }
 
 if (typeof String.prototype.startsWith != 'function') {
-  String.prototype.startsWith = function (str){
-    return this.slice(0, str.length) == str;
-  };
+	String.prototype.startsWith = function (str){
+		return this.slice(0, str.length) == str;
+	};
 }
 
 if (typeof String.prototype.endsWith != 'function') {
-  String.prototype.endsWith = function (str){
-    return this.slice(-str.length) == str;
-  };
+	String.prototype.endsWith = function (str){
+		return this.slice(-str.length) == str;
+	};
 }
-
-var Inputs = {
-    dvd: "04",
-    bd: "25",
-    tv_sat: "05",
-    dvr_bdr: "15",
-    video_1: "10",
-    video_2: "14",
-    hdmi_1: "19",
-    hdmi_2: "20",
-    hdmi_3: "21",
-    hdmi_4: "22",
-    hdmi_5: "23",
-    hdmi_6: "24",
-    media: "26",
-    ipod_usb: "17",
-    xm_radio: "18",
-    cd: "01",
-    cdr_tape: "03",
-    tuner: "02",
-    phono: "00",
-    multi_ch: "12",
-    adapter_port: "33",
-    sirius: "27",
-    //hdmi_cyclic: "31",
-};
 
 var pow = false;
 var ext = true;
@@ -422,7 +348,33 @@ exports.Inputs = Inputs;
 exports.pow = pow;
 exports.ext = ext;
 
-var audioMode = {
+var Inputs = {
+	dvd: "04",
+	bd: "25",
+	tv_sat: "05",
+	dvr_bdr: "15",
+	video_1: "10",
+	video_2: "14",
+	hdmi_1: "19",
+	hdmi_2: "20",
+	hdmi_3: "21",
+	hdmi_4: "22",
+	hdmi_5: "23",
+	hdmi_6: "24",
+	media: "26",
+	ipod_usb: "17",
+	xm_radio: "18",
+	cd: "01",
+	cdr_tape: "03",
+	tuner: "02",
+	phono: "00",
+	multi_ch: "12",
+	adapter_port: "33",
+	sirius: "27",
+	//hdmi_cyclic: "31",
+};
+
+var listeningModes = {
 	"0101":"[)(] PLIIx MOVIE",
 	"0102":"[)(] PLII MOVIE",
 	"0103":"[)(] PLIIx MUSIC",
@@ -430,21 +382,21 @@ var audioMode = {
 	"0105":"[)(] PLIIx GAME",
 	"0106":"[)(] PLII GAME",
 	"0107":"[)(] PROLOGIC",
-	"0108":"Neo:6CINEMA",
-	"0109":"Neo:6MUSIC",
-	"010a":"XM HDS urround",
+	"0108":"Neo:6 CINEMA",
+	"0109":"Neo:6 MUSIC",
+	"010a":"XM HD Surround",
 	"010b":"NEURAL SURR",
 	"010c":"2 ch (Straight Decode)",
 	"010d":"[)(] PLIIz HEIGHT",
 	"010e":"WIDE SURR MOVIE",
 	"010f":"WIDE SURR MUSIC",
 	"0110":"STEREO",
-	"0111":"Neo:XCINEMA",
-	"0112":"Neo:XMUSIC",
-	"0113":"Neo:XGAME",
-	"0114":"NEURAL SURROUND+Neo:XCINEMA",
-	"0115":"NEURAL SURROUND+Neo:XMUSIC",
-	"0116":"NEURAL SURROUND+Neo:XGAMES",
+	"0111":"Neo:X CINEMA",
+	"0112":"Neo:X MUSIC",
+	"0113":"Neo:X GAME",
+	"0114":"NEURAL SURROUND+Neo:X CINEMA",
+	"0115":"NEURAL SURROUND+Neo:X MUSIC",
+	"0116":"NEURAL SURROUND+Neo:X GAMES",
 	"1101":"[)(] PLIIx MOVIE",
 	"1102":"[)(] PLIIx MUSIC",
 	"1103":"[)(] DIGITAL EX",
@@ -456,9 +408,9 @@ var audioMode = {
 	"1109":"[)(] PLIIz HEIGHT",
 	"110a":"WIDE SURR MOVIE",
 	"110b":"WIDE SURR MUSIC",
-	"110c":"Neo:XCINEMA",
-	"110d":"Neo:XMUSIC",
-	"110e":"Neo:XGAME",
+	"110c":"Neo:X CINEMA",
+	"110d":"Neo:X MUSIC",
+	"110e":"Neo:X GAME",
 	"0201":"ACTION",
 	"0202":"DRAMA",
 	"0203":"SCI-FI",
@@ -495,9 +447,9 @@ var audioMode = {
 	"0311":"[)(] PLIIz+THX CINEMA",
 	"0312":"[)(] PLIIz+THX MUSIC",
 	"0313":"[)(] PLIIz+THX GAMES",
-	"0314":"Neo:XCINEMA+THX CINEMA",
-	"0315":"Neo:XMUSIC+THX MUSIC",
-	"0316":"Neo:XGAMES+THX GAMES",
+	"0314":"Neo:X CINEMA+THX CINEMA",
+	"0315":"Neo:X MUSIC+THX MUSIC",
+	"0316":"Neo:X GAMES+THX GAMES",
 	"1301":"THX SurrEX",
 	"1302":"Neo:6+THXC INEMA",
 	"1303":"ES MTRX+THX CINEMA",
@@ -526,58 +478,58 @@ var audioMode = {
 	"131a":"[)(] PLIIz + THXCINEMA",
 	"131b":"[)(] PLIIz + THXMUSIC",
 	"131c":"[)(] PLIIz + THXGAMES",
-	"131d":"Neo:XCINEMA+THXCINEMA",
-	"131e":"Neo:XMUSIC+THXMUSIC",
-	"131f":"Neo:XGAME+THXGAMES",
+	"131d":"Neo:X CINEMA+THX CINEMA",
+	"131e":"Neo:X MUSIC+THX MUSIC",
+	"131f":"Neo:X GAME+THX GAMES",
 	"0401":"STEREO",
-	"0402":"[)(]PLIIMOVIE",
-	"0403":"[)(]PLIIxMOVIE",
-	"0404":"Neo:6CINEMA",
+	"0402":"[)(] PLII MOVIE",
+	"0403":"[)(] PLIIx MOVIE",
+	"0404":"Neo:6 CINEMA",
 	"0405":"AUTO SURROUND (Straight Decode)",
 	"0406":"[)(] DIGITAL EX",
 	"0407":"[)(] PLIIx MOVIE",
 	"0408":"DTS+Neo:6",
 	"0409":"ES MATRIX",
 	"040a":"ES DISCRETE",
-	"040b":"DTS-ES8ch",
+	"040b":"DTS-ES 8ch",
 	"040c":"XM HD Surround",
 	"040d":"NEURAL SURR",
 	"040e":"RETRIEVER AIR",
-	"040f":"Neo:XCINEMA",
-	"0410":"Neo:XCINEMA",
+	"040f":"Neo:X CINEMA",
+	"0410":"Neo:X CINEMA",
 	"0501":"STEREO",
 	"0502":"[)(] PLII MOVIE",
 	"0503":"[)(] PLIIx MOVIE",
-	"0504":"Neo:6CINEMA",
+	"0504":"Neo:6 CINEMA",
 	"0505":"ALC (Straight Decode)",
 	"0506":"[)(] DIGITAL EX",
 	"0507":"[)(] PLIIx MOVIE",
 	"0508":"DTS+Neo:6",
 	"0509":"ES MATRIX",
 	"050a":"ES DISCRETE",
-	"050b":"DTS-ES8ch",
+	"050b":"DTS-ES 8ch",
 	"050c":"XM HD Surround",
 	"050d":"NEURAL SURROUND",
 	"050e":"RETRIEVER AIR",
-	"050f":"Neo:XCINEMA",
-	"0510":"Neo:XCINEMA",
+	"050f":"Neo:X CINEMA",
+	"0510":"Neo:X CINEMA",
 	"0601":"STEREO",
 	"0602":"[)(] PLII MOVIE",
 	"0603":"[)(] PLIIx MOVIE",
-	"0604":"Neo:6CINEMA",
-	"0605":"STREAM DIRECT NORMAL (Straight Decode)",
+	"0604":"Neo:6 CINEMA",
+	"0605":"STREAM DIRECT (Straight Decode)",
 	"0606":"[)(] DIGITAL EX",
 	"0607":"[)(] PLIIx MOVIE",
 	"0608":"(nothing)",
 	"0609":"ES MATRIX",
 	"060a":"ES DISCRETE",
-	"060b":"DTS-ES8ch",
-	"060c":"Neo:XCINEMA",
-	"060d":"Neo:XCINEMA",
+	"060b":"DTS-ES 8ch",
+	"060c":"Neo:X CINEMA",
+	"060d":"Neo:X CINEMA",
 	"0701":"STREAM DIRECTPURE 2ch",
 	"0702":"[)(] PLII MOVIE",
 	"0703":"[)(] PLIIx MOVIE",
-	"0704":"Neo:6CINEMA",
+	"0704":"Neo:6 CINEMA",
 	"0705":"STREAM DIRECT PURE (Straight Decode)",
 	"0706":"[)(] DIGITAL EX",
 	"0707":"[)(] PLIIx MOVIE",
@@ -585,9 +537,9 @@ var audioMode = {
 	"0709":"ES MATRIX",
 	"070a":"ES DISCRETE",
 	"070b":"DTS-ES8ch",
-	"070c":"Neo:XCINEMA",
-	"070d":"Neo:XCINEMA",
+	"070c":"Neo:X CINEMA",
+	"070d":"Neo:X CINEMA",
 	"0881":"OPTIMUM",
 	"0e01":"HDMI THROUGH",
-	"0f01":"MULTICHIN"
+	"0f01":"MULTI CH IN"
 };

@@ -69,8 +69,36 @@ webserver.on('request', function(req, res) {
 		if(options.log) { console.log("HTTP-GET: /nexus"); }
 		break;
 	    case '/ipcameras':
-		setInput(24);1
+		setInput(24);
 		if(options.log) { console.log("HTTP-GET: /ipcameras"); }
+		break;
+	    case '/audio-auto':
+		receiver.listeningMode("0006");
+		if(options.log) { console.log("HTTP-GET: /audio-auto"); }
+		break;
+	    case '/audio-alc':
+		receiver.listeningMode("0151");
+		if(options.log) { console.log("HTTP-GET: /audio-alc"); }
+		break;
+	    case '/audio-direct':
+		receiver.listeningMode("0007");
+		if(options.log) { console.log("HTTP-GET: /audio-direct"); }
+		break;
+	    case '/audio-stereo':
+		receiver.listeningMode("0001");
+		if(options.log) { console.log("HTTP-GET: /audio-stereo"); }
+		break;
+	    case '/audio-pl2':
+		receiver.listeningMode("0012");
+		if(options.log) { console.log("HTTP-GET: /audio-pl2"); }
+		break;
+	    case '/audio-pl2music':
+		receiver.listeningMode("0014");
+		if(options.log) { console.log("HTTP-GET: /audio-pl2music"); }
+		break;
+	    case '/audio-extstereo':
+		receiver.listeningMode("0112");
+		if(options.log) { console.log("HTTP-GET: /audio-extstereo"); }
 		break;
 	    case '/':
 	      res.write('<html><body>Hello, I am the AVR Controller.</body></html>');
