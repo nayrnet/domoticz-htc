@@ -22,7 +22,7 @@ var options = {
 	log: 		false
 };
 
-// Domoticz Switches - NAME : IDX LEVEL DESCRIPTION
+// Domoticz Switches - NAME : IDX
 var switches = {
 	inputs		: 145,
 	modes		: 168,
@@ -105,7 +105,7 @@ domoticz.on('data', function(data) {
 			POWER = false
 		}
 	}
-
+	// Audio Mode Selector Switch
 	if (data.idx === switches['modes']) {
 		level = parseInt(data.svalue1)
 		if ((modes[level]) && (modes[level][0] !== MODE)) {
@@ -114,7 +114,6 @@ domoticz.on('data', function(data) {
 			MODE = modes[level][0]
 		}
 	}
-
 	if (TRACE) {
 	        message = JSON.stringify(data)
 	        console.log("DOMO: " + message.toString())
@@ -181,7 +180,7 @@ receiver.on('display', function(display) {
 
 // receiver: error
 receiver.on('error', function(error) {
-	console.log("FATAL AVR ERROR: \r" + error)
+	console.log("FATAL AVR ERROR: " + error)
 	domoticz.log("FATAL AVR ERROR: " + error)
 	process.exit()
 });
@@ -200,4 +199,3 @@ function setInput(input) {
 	}
 	INPUT = input
 }
-
