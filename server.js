@@ -91,11 +91,12 @@ domoticz.on('data', function(data) {
 			if ((!isNaN(input)) && (input !== INPUT)) {
 				if (TRACE) { console.log("GOT: Input " + switches[input][2]) };
 				setInput(input)
-				INPUT = switches[input]
+				INPUT = input
 				return true;
 			} else if ((input === 'power') && (POWER)) {
 				if (TRACE) { console.log("GOT: Power Off") };
 				receiver.power(0)
+				tv.power(0)
 				POWER = false
 				return true;
 			}
