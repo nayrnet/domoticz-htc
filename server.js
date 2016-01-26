@@ -1,5 +1,5 @@
 #!/usr/bin/nodejs
-// Domoticz Home Theatre Controller (NODE-DOMOTICZ-HTC)
+// Domoticz Home Theatre Controller (DOMOTICZ-HTC)
 // NodeJS Framework for integrating Home Theatre Equipment with Domoticz.
 
 // The default setup is my own and uses Pioneer AVR, SharpTV and PowerMate USB hardware
@@ -9,18 +9,14 @@ var 	avr 		= require('./hardware/pioneeravr.js'),
 	television	= require('./hardware/sharptv.js'),
 //	usbknob		= require('./hardware/powermate.js'),
 	mqtt            = require('node-domoticz-mqtt'),
-	TRACE		= true;
+	TRACE		= false;
 
-var hardware = {
-	avrPort:	50000,
-	avrHost:	"192.168.4.66",
+var options = {
+	avrPort: 	50000,
+	avrHost: 	"192.168.4.66",
 	tvPort: 	"/dev/ttyUSB-TV",
 	tvBaud: 	"9600",
-	log: 		false
-};
-
-var devices = {
-	idx:		[ 145, 168, 105, 170 ],
+	idx:		[ ],
 	host:		'localhost',
         status:         'htc/connected',
 	log: 		false
@@ -28,40 +24,52 @@ var devices = {
 
 // Domoticz Switches - NAME : IDX LEVEL DESCRIPTION
 var switches = {
-	power		: [ 145, 0 ],
+	inputs		: 145,
+	modes		: 168,
 	volume		: 170,
-	displayText	: 0,
+	displayText	: 0,	// 0 Disables
 	modeText	: 167,
-	modes		: 168,	
-	15		: [ 145, 10, 'Nexus Player' ],
-	4		: [ 145, 20, 'PlayStation 3' ],
-	22		: [ 145, 30, 'PlayStation 4' ],
-	24		: [ 145, 40, 'IPCameras' ]
 };
 
-// Domoticz Audio Mode Selector - LEVEL : MODE
+// Domoticz Input Selector - LEVEL : [INPUT, NAME]
+var inputs = {
+	0		: [ 0, 'Power Off' ],
+	10		: [ 15, 'Nexus Player' ],
+	20		: [ 04, 'PlayStation 3' ],
+	30		: [ 22, 'PlayStation 4' ],
+	40		: [ 24, 'Security Cameras' ],
+};
+
+
+// Domoticz Audio Mode Selector - LEVEL : [MODE, NAME]
 var modes = {
-	10		: '0006',	// Auto Surround
-	20		: '0151',	// ALC
-	30		: '0007',	// Direct
-	40		: '0001',	// Stereo
-	50		: '0012',	// ProLogic
-	60		: '0014',	// ProLogic Music
-	70		: '0112',	// Extended Stereo
+	10		: [ '0006', 'Auto Surround' ],
+	20		: [ '0151', 'Auto Level Control' ],
+	30		: [ '0007', 'Stream Direct' ],
+	40		: [ '0001', 'Stereo' ],
+	50		: [ '0012', 'ProLogic' ],
+	60		: [ '0014', 'ProLogic Music' ],
+	70		: [ '0112', 'Extended Stereo'],
 };
 
+// Add Switches to MQTT Data Event
+options.idx.push(switches['inputs'])
+options.idx.push(switches['modes'])
+options.idx.push(switches['volume'])
 
 // Setup Hardware
-var	receiver 	= new avr.Pioneer(hardware);
-var	tv 		= new television.SharpTV(hardware);
-var 	domoticz 	= new mqtt.domoticz(devices);
+
+var	receiver 	= new avr.Pioneer(options);
+var	tv 		= new television.SharpTV(options);
+var 	domoticz 	= new mqtt.domoticz(options);
 //var 	vol		= new usbknob.PowerMote(options);
 
 var	POWER		= false;
 var	MUTE		= false;
 var	INPUT		= false;
+var	MODE		= false;
 
-// EVENTS
+// START OF EVENTS
 
 // OnConnect Events
 receiver.on("connect", function() {
@@ -82,47 +90,44 @@ domoticz.on('connect', function() {
         domoticz.log('<HTC> Home Theatre Controller connected.')
 });
 
-// Domoticz: data
+// domoticz: data
 domoticz.on('data', function(data) {
 	// Input Selector Switch
-	var inputSwitch = Object.keys(switches);
-	inputSwitch.forEach(function(input){
-		if ((data.idx === switches[input][0]) && (switches[input][1] === parseInt(data.svalue1))) {
-			if ((!isNaN(input)) && (input !== INPUT)) {
-				if (TRACE) { console.log("GOT: Input " + switches[input][2]) };
-				setInput(input)
-				return true;
-			} else if ((input === 'power') && (POWER)) {
-				if (TRACE) { console.log("GOT: Power Off") };
-				receiver.power(0)
-				tv.power(0)
-				POWER = false
-				return true;
-			}
+	if (data.idx === switches['inputs']) {
+		level = parseInt(data.svalue1)
+		if ((inputs[level]) && (inputs[level][0] !== INPUT)) {
+			if (TRACE) { console.log("DOMO: Input " + inputs[level][1]) };
+			setInput(inputs[level][0])
+		} else if (POWER) {
+			if (TRACE) { console.log("DOMO: Power Off") };
+			receiver.power(0)
+			tv.power(0)
+			POWER = false
 		}
-	});
-	// Audio Selector Switch
-	var audioSwitch = Object.keys(modes);
-	audioSwitch.forEach(function(mode){
-		if ((data.idx === switches['modes']) && (parseInt(mode) === parseInt(data.svalue1))) {
-			if (TRACE) { console.log("GOT: Audio Mode " + modes[mode]) };
-				receiver.listeningMode(modes[mode]);
+	}
+
+	if (data.idx === switches['modes']) {
+		level = parseInt(data.svalue1)
+		if ((modes[level]) && (modes[level][0] !== MODE)) {
+			if (TRACE) { console.log("DOMO: Audio Mode " + modes[level][1]) };
+			receiver.listeningMode(modes[level][0])
+			MODE = modes[level][0]
 		}
-	});
+	}
 
 	if (TRACE) {
 	        message = JSON.stringify(data)
-	        console.log("DOMO IN: " + message.toString())
+	        console.log("DOMO: " + message.toString())
 	}
 });
 
 // receiver: power
 receiver.on('power', function(pwr) {
-	if ((!pwr) && (POWER) && (switches['power'][0])) {
-		domoticz.switch(switches['power'][0],switches['power'][1])
+	if ((!pwr) && (POWER)) {
+		domoticz.switch(switches['inputs'],0)
 		domoticz.log("<HTC> Powering Down")
 		tv.power(0)
-	} else if ((pwr) && (!POWER) && (switches['power'][0])) {
+	} else if ((pwr) && (!POWER)) {
 		domoticz.log("<HTC> Powering On.")
 		tv.power(1)
 		//setInput(4)		// Nexus Player is the default input
@@ -147,11 +152,15 @@ receiver.on('mute', function(mute) {
 
 // receiver: input
 receiver.on('input', function(input,inputName) {
-	if ((POWER) && (switches[input][0]) && (parseInt(input) !== parseInt(INPUT))) {
-		domoticz.switch(switches[input][0],switches[input][1])
-		domoticz.log("<HTC> input changed to " + switches[input][2])
+	if ((POWER) && (parseInt(input) !== parseInt(INPUT))) {
+		var i = Object.keys(inputs);
+		i.forEach(function(id){
+			if (input === inputs[id][0]) {
+				domoticz.switch(switches['inputs'],id)
+				domoticz.log("<HTC> input changed to " + inputs[id][2])
+			}
+		});
 		INPUT = parseInt(input)
-		console.log("INPUT: " + input)
 	}
 });
 
@@ -190,6 +199,5 @@ function setInput(input) {
 		}
 	}
 	INPUT = input
-	console.log(input)
 }
 
