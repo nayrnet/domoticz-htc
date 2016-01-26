@@ -122,7 +122,7 @@ receiver.on('power', function(pwr) {
 		domoticz.switch(switches['power'][0],switches['power'][1])
 		domoticz.log("<HTC> Powering Down")
 		tv.power(0)
-	} else if (pwr) && (!POWER) && (switches['power'][0]) {
+	} else if ((pwr) && (!POWER) && (switches['power'][0])) {
 		domoticz.log("<HTC> Powering On.")
 		tv.power(1)
 		setInput(4)		// Nexus Player is the default input
