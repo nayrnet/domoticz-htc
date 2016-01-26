@@ -70,7 +70,7 @@ receiver.on("connect", function() {
         setTimeout(function() {
                 receiver.querypower()
                 receiver.queryinput()
-        }, 1000);
+        }, 1500);
         setTimeout(function() {
                 receiver.queryaudioMode()
                 receiver.queryVolume()
@@ -120,10 +120,12 @@ domoticz.on('data', function(data) {
 receiver.on('power', function(pwr) {
 	if ((!pwr) && (POWER) && (switches['power'][0])) {
 		domoticz.switch(switches['power'][0],switches['power'][1])
-		if (switches[modeText]) {
-			domoticz.switch(switches[modeText],"[OFF]")
-		}
 		domoticz.log("<HTC> Powering Down")
+		tv.power(0)
+	} else if (pwr) && (!POWER) && (switches['power'][0]) {
+		domoticz.log("<HTC> Powering On.")
+		tv.power(1)
+		setInput(4)		// Nexus Player is the default input
 	}
 	POWER = pwr
 });
