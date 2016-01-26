@@ -98,7 +98,7 @@ domoticz.on('data', function(data) {
 		if ((inputs[level]) && (inputs[level][0] !== INPUT)) {
 			if (TRACE) { console.log("DOMO: Input " + inputs[level][1]) };
 			setInput(inputs[level][0])
-		} else if (POWER) {
+		} else if ((!level) && (POWER)) {
 			if (TRACE) { console.log("DOMO: Power Off") };
 			receiver.power(0)
 			tv.power(0)
