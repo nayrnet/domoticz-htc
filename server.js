@@ -103,6 +103,7 @@ domoticz.on('data', function(data) {
 			receiver.power(0)
 			tv.power(0)
 			POWER = false
+			INPUT = false
 		}
 	}
 	// Audio Mode Selector Switch
@@ -129,7 +130,6 @@ receiver.on('power', function(pwr) {
 	} else if ((pwr) && (!POWER)) {
 		domoticz.log("<HTC> Powering On.")
 		tv.power(1)
-		//setInput(4)		// Nexus Player is the default input
 	}
 	POWER = pwr
 });
@@ -196,6 +196,6 @@ function setInput(input) {
 		if (MUTE) {
 			receiver.mute(0)
 		}
-	}
+	} 
 	INPUT = input
 }
