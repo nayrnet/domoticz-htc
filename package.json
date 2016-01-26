@@ -1,12 +1,13 @@
 {
-  "name": "avr-controller",
+  "name": "domoticz-htc",
   "version": "1.0.0",
-  "description": "NodeJS AVR Controller",
+  "description": "Domoticz Home Theatre Controller",
   "main": "server.js",
   "dependencies": {
     "crypto": "^0.0.3",
     "mqtt": "^1.6.3",
     "events": "^1.1.0",
+    "node-domoticz-mqtt": "^1.1.2",
     "daemonize2": "^0.4.2",
     "serialport": "^2.0.6",
     "node-powermate": "^0.0.3",

@@ -3,8 +3,8 @@
 
 var daemon = require("daemonize2").setup({
 	main: "server.js",
-	name: "AVR Controller Service",
-	pidfile: "avrcontroller.pid"
+	name: "Home Theatre Controller",
+	pidfile: "htc.pid"
 });
 
 switch (process.argv[2]) {

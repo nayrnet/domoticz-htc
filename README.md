@@ -1,12 +1,10 @@
-# Node AVR Controller
+# Domoticz Home Theatre Controller (domoticz-htc)
 
-This program communicates with my tv via rs232 and with my audio receiver via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob and it syncs up with my Home Automation platform via MQTT.
+Modular NodeJS service interfaces with various Home Theatre hardware and Domoticz to provide a unified and hackable solution.
 
-This relieves me of a universal remote, each device has its own remote/gamepad and the PowerMate provides the missing functionality. The Nexus player is the primary device/remote and it has custom software to provide input changes and other functions missing on the bluetooth Android remote.
+This program communicates with my tv via rs232 and with my audio receiver via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob. Communicaiton with Domoticz is done via MQTT API.
 
-There is remote control via Web browser through a Domoticz Virtual Selector Switch. I have automation scripts in Domoticz that change depending on the state of the AVR, and others that can controll the AVR.
-
-> Out of the box this solution is going to do very little for you, its very specific to my setup. However the code is free to copy and modify for your own uses.
+> I have completely redone this project so its more portable and easier to adopt.
 
 ### Hardware:
 * Pioneer SC-1222-K
@@ -23,6 +21,13 @@ There is remote control via Web browser through a Domoticz Virtual Selector Swit
 * Debian Jessie w/NodeJS from NodeSource repository
 * AndroidTV OSD Remote - https://github.com/nayrnet/androidtv-osd-remote
 * Mosquitto MQTT Broker
+
+### Domoticz Devices:
+* Input Selector - Change Video Inputs and Toggle Power
+* Audio Mode Selector - Change the audio proccessor.
+* Volume Slider - Toggle Mute and set volume level.
+* Display - Text Sensor showing the front display.
+* Audio Mode - Show current audio proccessor (may not always be the one you select).
 
 ### PowerMate Functions: 
 * Left/Right = Vol Down/Vol Up
