@@ -199,7 +199,7 @@ function handleData(self, d) {
         	if (TRACE) {
             		console.log("AVR listening mode: " + listeningModes[mode]);
         	}
-		self.emit("listenMode", mode);
+		self.emit("listenMode", mode, listeningModes[mode]);
     	}
     	else if (data.startsWith("FL")) {       				// display information
 		var display = hex2a(data.substring(4)).trim();

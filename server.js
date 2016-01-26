@@ -96,10 +96,10 @@ domoticz.on('data', function(data) {
 	if (data.idx === switches['inputs']) {
 		level = parseInt(data.svalue1)
 		if ((inputs[level]) && (inputs[level][0] !== INPUT)) {
-			if (TRACE) { console.log("DOMO: Input " + inputs[level][1]) };
+			if (TRACE) { console.log("DOMO: Input " + inputs[level][1]) }
 			setInput(inputs[level][0])
 		} else if ((!level) && (POWER)) {
-			if (TRACE) { console.log("DOMO: Power Off") };
+			if (TRACE) { console.log("DOMO: Power Off") }
 			receiver.power(0)
 			tv.power(0)
 			POWER = false
@@ -109,7 +109,7 @@ domoticz.on('data', function(data) {
 	if (data.idx === switches['modes']) {
 		level = parseInt(data.svalue1)
 		if ((modes[level]) && (modes[level][0] !== MODE)) {
-			if (TRACE) { console.log("DOMO: Audio Mode " + modes[level][1]) };
+			if (TRACE) { console.log("DOMO: Audio Mode " + modes[level][1]) }
 			receiver.listeningMode(modes[level][0])
 			MODE = modes[level][0]
 		}
@@ -164,7 +164,7 @@ receiver.on('input', function(input,inputName) {
 });
 
 // receiver: listening modes
-receiver.on('listeningModes', function(mode,modeName) {
+receiver.on('listenMode', function(mode,modeName) {
 	if ((POWER) && (switches['modeText'])) {
 		domoticz.device(switches['modeText'],0,modeName)
 	}
