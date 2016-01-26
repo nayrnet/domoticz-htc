@@ -4,25 +4,21 @@ var 	util		= require('util'),
     	net    		= require('net'),
     	events 		= require('events'),
     	request 	= require('request'),
-	mqtt    	= require('mqtt'),
-	domoticz	= mqtt.connect('mqtt://127.0.0.1'),
 	TRACE 		= true,
-	DETAIL	 	= true,
-	domoURI 	= "http://dev:dev@localhost:8080";
+	DETAIL	 	= true;
 
 var Pioneer = function(options) {
 	events.EventEmitter.call(this); // inherit from EventEmitter
 	this.client = this.connect(options);
 	this.inputNames = {};
 	TRACE = options.log;
-	domoURI = options.domo;
 };
 
 util.inherits(Pioneer, events.EventEmitter);
 
 Pioneer.prototype.connect = function(options) {
 	var self = this;
-    	var client = net.connect(options);
+    	var client = net.connect({ host: options.avrHost, port: options.avrPort});
 
     	client.on("connect", function (socket) {
         	handleConnection(self, socket);
@@ -113,7 +109,7 @@ Pioneer.prototype.volumeDown = function() {
 };
 
 Pioneer.prototype.selectInput = function(input) {
-	this.client.write(input + "FN\r");
+	this.client.write(pad(input,2) + "FN\r");
 };
 
 Pioneer.prototype.queryInputName = function(inputId) {
@@ -138,25 +134,8 @@ function handleConnection(self, socket) {
         	console.log("AVR: got connection.");
     	}
     	self.client.write("\r");    // wake
-    	setTimeout(function() {
-    		self.querypower()
-    		self.queryinput()
-        	self.emit("connect")
-    	}, 500);
-    	setTimeout(function() {
-		self.queryaudioMode()
-		self.queryVolume()
-    	}, 2000);
-   	setInterval(function() {
-        	self.querypower();
-    	}, 270000);
-   	setInterval(function() {
-        	self.querymute();
-    	}, 330000);
-   	setInterval(function() {
-		self.queryaudioMode()
-    	}, 910000);
     	self.socket = socket;
+	self.emit("connect");
 }
 
 // Monitor AVR and send updates to Domoticz
@@ -173,9 +152,6 @@ function handleData(self, d) {
         	if (TRACE) {
             		console.log("AVR: " + pwr);
         	}
-        	if (!pwr) {
-			updateDomo(145,0);
-		}
 		pow = pwr;
         	self.emit("power", pwr);
     	}
@@ -188,7 +164,6 @@ function handleData(self, d) {
         	if (TRACE) {
             		console.log("AVR: volume " + val + "%");
         	}
-        	updateDomo(170,val);
         	self.emit("volume", val);
     	}
     	else if (data.startsWith("MUT")) {   // mute status
@@ -196,22 +171,12 @@ function handleData(self, d) {
         	if (TRACE) {
             		console.log("AVR: mute: " + mute);
         	}
-        	if (mute && pow && ext) {
-			updateDomo(105,100);
-		} else if (ext) {
-			updateDomo(105,0);
-		}
-        	self.emit("mute", mute);
     	}
     	else if (data.startsWith("FN")) {
         	input = data.substr(2, 2);
         	if (TRACE) {
             		console.log("AVR input: " + input + " : " + self.inputNames[input]);
         	}
-        	if(input == 22 && pow) { updateDomo(145,30) }		// Playstation 4
-        	else if (input == 4 && pow) { updateDomo(145,20) }	// Playstation 3
-        	else if (input == 15 && pow) { updateDomo(145,10) } 	// Nexus Player
-        	else if (input == 24 && pow) { updateDomo(145,40) }	// IP Cameras
         	self.emit("input", input, self.inputNames[input]);
     	}
     	else if (data.startsWith("SSA")) {
@@ -231,18 +196,17 @@ function handleData(self, d) {
     	}
     	else if (data.startsWith("LM")) {       				// listening mode
         	var mode = data.substring(2);
-		if (pow) {
-			updateDomoText(167,listeningModes[mode]);
-		}
         	if (TRACE) {
             		console.log("AVR listening mode: " + listeningModes[mode]);
         	}
+		self.emit("listenMode", mode);
     	}
     	else if (data.startsWith("FL")) {       				// display information
 		var display = hex2a(data.substring(4)).trim();
 		if (TRACE && DETAIL) {
 			console.log("AVR FL: " + display);
 		}
+		self.emit("display", display);
     	}
     	else if (data.startsWith("RGB")) {      				// input name information. informs on input names
         	// handle input info
@@ -285,27 +249,10 @@ function hex2a(hex) {
 	return str;
 }
 
-domoticz.on('connect', function () {
-	domoticz.publish('avr-controller/connected', 'true');
-	console.log("Domoticz MQTT: connected");
-});
-
-function updateDomo(id,lvl) {
-	var 	cmd = "Set Level";
-	if (lvl > 99) { cmd = "On"; } else if (lvl < 1) { cmd = "Off"; }
-	var state = { 'command': 'switchlight', 'idx': id, 'switchcmd': cmd, 'level': lvl };
-	domoticz.publish('domoticz/in', JSON.stringify(state))
-	if(TRACE) {
-		console.log('DOMO: ' + JSON.stringify(state));
-	}
-}
-
-function updateDomoText(id,txt) {
-	var state = { 'command': 'udevice', 'idx': id, 'nvalue': 0, 'svalue': txt };
-	domoticz.publish('domoticz/in', JSON.stringify(state))
-	if(TRACE) {
-		console.log('DOMO: ' + JSON.stringify(state));
-	}
+function pad(num, size) {
+	var s = num+"";
+	while (s.length < size) s = "0" + s;
+	return s;
 }
 
 function handleEnd(self) {
@@ -335,12 +282,11 @@ if (typeof String.prototype.endsWith != 'function') {
 }
 
 var pow = false;
-var ext = true;
 
 exports.Pioneer = Pioneer;
 exports.Inputs = Inputs;
-exports.pow = pow;
-exports.ext = ext;
+exports.Power = pow;
+exports.ListeningModes = listeningModes;
 
 var Inputs = {
 	dvd: "04",
@@ -379,7 +325,7 @@ var listeningModes = {
 	"0108":"Neo:6 CINEMA",
 	"0109":"Neo:6 MUSIC",
 	"010a":"XM HD Surround",
-	"010b":"NEUTRAL SURROUND",
+	"010b":"NEURAL SURROUND",
 	"010c":"2 CH (Straight Decode)",
 	"010d":"[)(] PLIIz HEIGHT",
 	"010e":"WIDE SURROUND MOVIE",

@@ -14,8 +14,8 @@ var 	TRACE 	= false,
 var SharpTV = function(options) {
 	events.EventEmitter.call(this); 	// inherit from EventEmitter
     	TRACE = options.log;
-    	serialdevice = options.serialport;
-    	serialbaud = options.serialbaud;
+    	serialdevice = options.tvPort;
+    	serialbaud = options.tvBaud;
 }
 
 util.inherits(SharpTV, events.EventEmitter);
