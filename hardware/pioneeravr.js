@@ -177,7 +177,7 @@ function handleData(self, d) {
         	if (TRACE) {
             		console.log("AVR input: " + input + " : " + self.inputNames[input]);
         	}
-        	self.emit("input", input, self.inputNames[input]);
+        	self.emit("input", parseInt(input), self.inputNames[input]);
     	}
     	else if (data.startsWith("SSA")) {
          	if (TRACE && DETAIL) {

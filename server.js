@@ -9,7 +9,7 @@ var 	avr 		= require('./hardware/pioneeravr.js'),
 	television	= require('./hardware/sharptv.js'),
 //	usbknob		= require('./hardware/powermate.js'),
 	mqtt            = require('node-domoticz-mqtt'),
-	TRACE		= false;
+	TRACE		= true;
 
 var hardware = {
 	avrPort:	50000,
@@ -91,7 +91,6 @@ domoticz.on('data', function(data) {
 			if ((!isNaN(input)) && (input !== INPUT)) {
 				if (TRACE) { console.log("GOT: Input " + switches[input][2]) };
 				setInput(input)
-				INPUT = input
 				return true;
 			} else if ((input === 'power') && (POWER)) {
 				if (TRACE) { console.log("GOT: Power Off") };
@@ -126,7 +125,7 @@ receiver.on('power', function(pwr) {
 	} else if ((pwr) && (!POWER) && (switches['power'][0])) {
 		domoticz.log("<HTC> Powering On.")
 		tv.power(1)
-		setInput(4)		// Nexus Player is the default input
+		//setInput(4)		// Nexus Player is the default input
 	}
 	POWER = pwr
 });
@@ -148,10 +147,11 @@ receiver.on('mute', function(mute) {
 
 // receiver: input
 receiver.on('input', function(input,inputName) {
-	if ((POWER) && (switches[input][0])) {
+	if ((POWER) && (switches[input][0]) && (parseInt(input) !== parseInt(INPUT))) {
 		domoticz.switch(switches[input][0],switches[input][1])
 		domoticz.log("<HTC> input changed to " + switches[input][2])
-		INPUT = input
+		INPUT = parseInt(input)
+		console.log("INPUT: " + input)
 	}
 });
 
@@ -179,9 +179,17 @@ receiver.on('error', function(error) {
 
 // setInput - Perform tasks every input change.
 function setInput(input) {
-	receiver.power(1);
-	tv.power(1);
-	receiver.selectInput(input);
-//	receiver.mute(false);
+	if ((input !== INPUT) && (INPUT)) {
+		receiver.selectInput(input)
+		if (!POWER) {
+			tv.power(1)
+			receiver.power(1)
+		}
+		if (MUTE) {
+			receiver.mute(0)
+		}
+	}
+	INPUT = input
+	console.log(input)
 }
 
