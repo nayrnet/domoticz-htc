@@ -59,10 +59,6 @@ Selector Switch:
 
 ![Domoticz Selector Switch](screenshots/screenshot-button.png)
 
-Switch Config:
-
-![Domoticz Switch Config](screenshots/screenshot-config.png)
-
 #### TO-DO:
 * Volume Slider in Domoticz
 
