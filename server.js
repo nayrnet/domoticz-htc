@@ -17,6 +17,7 @@ var options = {
 	tvPort: 	"/dev/ttyUSB-TV",
 	tvBaud: 	"9600",
 	idx:		[ ],
+	request:	false,
 	host:		'localhost',
         status:         'htc/connected',
 	log: 		false
@@ -26,7 +27,7 @@ var options = {
 var switches = {
 	inputs		: 145,
 	modes		: 168,
-	volume		: 170,
+	volume		: 177,
 	displayText	: 0,	// 0 Disables
 	modeText	: 167,
 };
@@ -68,6 +69,8 @@ var	POWER		= false;
 var	MUTE		= false;
 var	INPUT		= false;
 var	MODE		= false;
+var	VOLUME		= false;
+var	WAIT		= false;
 
 // START OF EVENTS
 
@@ -115,6 +118,28 @@ domoticz.on('data', function(data) {
 			MODE = modes[level][0]
 		}
 	}
+	// Volume Switch
+	if (data.idx === switches['volume']) {
+		val = parseInt(data.svalue1) + 1
+		if ((val !== VOLUME) && (VOLUME) && (data.nvalue === 2)) {
+			if (TRACE) { console.log("DOMO: Volume " + val) }
+			MUTE=0
+			WAIT=true
+			receiver.volume(val)
+			setTimeout(function() {
+				WAIT=false
+			}, 500);
+		} else if (data.nvalue === 0) {
+			if (TRACE) { console.log("DOMO: Mute ON") }
+			MUTE=1
+			receiver.mute(true)
+		} else if (data.nvalue === 1) {
+			if (TRACE) { console.log("DOMO: Mute OFF") }
+			MUTE=0
+			receiver.mute(false)			
+		}
+		VOLUME = val
+	}
 	if (TRACE) {
 	        message = JSON.stringify(data)
 	        console.log("DOMO: " + message.toString())
@@ -136,16 +161,22 @@ receiver.on('power', function(pwr) {
 
 // receiver: volume
 receiver.on('volume', function(val) {
-	if ((POWER) && (switches['volume'])) {
-		domoticz.switch(switches['volume'],val)
+	if ((POWER) && (switches['volume']) && (VOLUME !== val) && (!WAIT)) {
+		VOLUME=val
+		domoticz.switch(switches['volume'],parseInt(val))
 	}
 });
 
 // receiver: mute
 receiver.on('mute', function(mute) {
-	if ((POWER) && (switches['mute'])) {
-		domoticz.switch(switches['mute'],mute)
-		MUTE = mute
+	if ((POWER) && (switches['volume'])) {
+		if(mute) {
+			MUTE = true
+			domoticz.switch(switches['volume'],0)
+		} else {
+			MUTE = false
+			domoticz.switch(switches['volume'],100)
+		}
 	}
 });
 

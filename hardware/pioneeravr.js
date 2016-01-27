@@ -89,15 +89,13 @@ Pioneer.prototype.volume = function(level) {
 	if (TRACE) {
 		console.log("setting volume: " + level + "%");
 	}
-	val = Math.round(level * 1.85).toString();
+	val = Math.round((level/100) * 185);
 	
-	while (val.length < 3) {
-		val = "0" + level;
-	}
+	var level = val.toString()
 	if (TRACE) {
         	console.log("setting volume level: " + level);
 	}
-	this.client.write(val + "VL\r");
+	this.client.write(pad(level,3) + "VL\r");
 };
 
 Pioneer.prototype.volumeUp = function() {
@@ -159,12 +157,12 @@ function handleData(self, d) {
         	var vol = data.substr(3, 3);
         
         	// translate to dB.
-        	var val = Math.round((parseInt(vol)/1.85));
+        	var val = Math.round((parseInt(vol) * 100) / 185);
         
         	if (TRACE) {
             		console.log("AVR: volume " + val + "%");
         	}
-        	self.emit("volume", val);
+      		self.emit("volume", val);
     	}
     	else if (data.startsWith("MUT")) {   // mute status
         	var mute = data.endsWith("0");  // MUT0 = muted, MUT1 = not muted
