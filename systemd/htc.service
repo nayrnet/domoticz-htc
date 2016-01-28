@@ -1,20 +1,20 @@
 [Unit]
-Description=AVR Controller
+Description=Home Theatre Controller
 
 [Service]
 Type=forking
-PIDFile=/home/domoticz/avr-controller/avrcontroller.pid
+PIDFile=/home/domoticz/htc/htc.pid
 ExecStart=/usr/bin/nodejs daemon.js start
 ExecStop=/usr/bin/nodejs daemon.js stop
 Restart=always
 RestartSec=120
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=avrcontroller
+SyslogIdentifier=htc
 User=domoticz
 Group=domoticz
 Environment=NODE_ENV=production
-WorkingDirectory=/home/domoticz/avr-controller/
+WorkingDirectory=/home/domoticz/htc/
 
 [Install]
 WantedBy=multi-user.target
