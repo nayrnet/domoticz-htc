@@ -387,6 +387,7 @@ function downLeft(delta) {
 	if (READY) {
 		READY = false
 		level = (LIGHTS - (Math.abs(delta)*2))
+		if(level<10) level = 0
 		domoticz.switch(switches['lights'],level)
 		LIGHTS = level
 		commandTimer = setTimeout(function() {
