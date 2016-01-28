@@ -89,7 +89,7 @@ Pioneer.prototype.volume = function(level) {
 	if (TRACE) {
 		console.log("setting volume: " + level + "%");
 	}
-	val = Math.round((level/100) * 185);
+	val = Math.round((level/100) * 121);
 	
 	var level = val.toString()
 	if (TRACE) {
@@ -162,7 +162,7 @@ function handleData(self, d) {
         	var vol = data.substr(3, 3);
         
         	// translate to dB.
-        	var val = Math.round((parseInt(vol) * 100) / 185);
+        	var val = Math.round((parseInt(vol) * 100) / 121);
         
         	if (TRACE) {
             		console.log("AVR: volume " + val + "%");
