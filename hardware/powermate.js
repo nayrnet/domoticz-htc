@@ -2,7 +2,7 @@
 // PowerMate USB - This is the physical device that controlls the AVR.
 
 var	PowerMate 	= require('node-powermate'),
-//	reciever	= require('../server.js'),
+	receiver	= require('../server.js'),
 	events		= require('events'),
 	util   		= require('util').inherits;
 
@@ -110,5 +110,4 @@ powermate.on('wheelTurn', function(delta) {
     	}
 });
 
-exports.powermate = powermate;
-exports.PoweMate = PowerMate;
+exports.PowerMate = PowerMate;

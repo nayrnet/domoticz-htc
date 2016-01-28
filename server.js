@@ -7,9 +7,9 @@
 
 var 	avr 		= require('./hardware/pioneeravr.js'),
 	television	= require('./hardware/sharptv.js'),
-//	usbknob		= require('./hardware/powermate.js'),
+	usbremote 	= require('node-powermate'),
 	mqtt            = require('node-domoticz-mqtt'),
-	TRACE		= true;
+	TRACE		= false;
 
 var options = {
 	avrPort: 	50000,
@@ -63,7 +63,7 @@ options.idx.push(switches['volume'])
 var	receiver 	= new avr.Pioneer(options);
 var	tv 		= new television.SharpTV(options);
 var 	domoticz 	= new mqtt.domoticz(options);
-//var 	remote		= new usbknob.PowerMate(options);
+var 	powermate 	= new usbremote();
 
 var	POWER		= false;
 var	MUTE		= false;
@@ -71,6 +71,13 @@ var	INPUT		= false;
 var	MODE		= false;
 var	VOLUME		= false;
 var	WAIT		= false;
+var	DOWN		= false;
+var	READY		= true;
+
+var	dblClickTimer;
+var	pressTimer;
+var	commandTimer;
+
 
 // START OF EVENTS
 
@@ -150,6 +157,8 @@ receiver.on('power', function(pwr) {
 		domoticz.switch(switches['inputs'],0)
 		domoticz.switch(switches['volume'],0)
 		domoticz.switch(switches['modes'],0)
+		powermate.setBrightness(0)
+		powermate.setPulseAsleep(true)
 		domoticz.log("<HTC> Powering Down")
 		tv.power(0)
 	} else if (pwr) {
@@ -157,6 +166,11 @@ receiver.on('power', function(pwr) {
 		domoticz.switch(switches['volume'],255)
 		domoticz.switch(switches['modes'],10)
 		tv.power(1)
+		if (VOLUME) {
+			powermate.setBrightness(VOLUME*2.55)
+		} else {
+			powermate.setBrightness(255)
+		}
 	}
 	POWER = pwr
 });
@@ -166,6 +180,7 @@ receiver.on('volume', function(val) {
 	if ((switches['volume']) && (VOLUME !== val) && (!WAIT)) {
 		VOLUME=val
 		domoticz.switch(switches['volume'],parseInt(val))
+		powermate.setBrightness(val*2.55)
 	}
 });
 
@@ -175,9 +190,13 @@ receiver.on('mute', function(mute) {
 		if ((mute) && (!MUTE)) {
 			domoticz.switch(switches['volume'],0)
 			tv.mute(true)
+			powermate.setPulseSpeed(511)
+			powermate.setPulseAwake(true)
 		} else if (MUTE) {
 			domoticz.switch(switches['volume'],255)
 			tv.mute(false)
+			powermate.setPulseAwake(false)
+			powermate.setBrightness(VOLUME*2.55)
 		}
 		MUTE = mute
 	}
@@ -190,7 +209,7 @@ receiver.on('input', function(input,inputName) {
 		i.forEach(function(id){
 			if (input === inputs[id][0]) {
 				domoticz.switch(switches['inputs'],id)
-				domoticz.log("<HTC> input changed to " + inputs[id][2])
+				domoticz.log("<HTC> input changed to " + inputs[id][1])
 			}
 		});
 		INPUT = parseInt(input)
@@ -204,7 +223,6 @@ receiver.on('listenMode', function(mode,modeName) {
 	}
 });
 
-
 // receiver: display
 receiver.on('display', function(display) {
 	if (switches['displayText']) {
@@ -212,18 +230,44 @@ receiver.on('display', function(display) {
 	}
 });
 
-// receiver: error
-receiver.on('error', function(error) {
-	console.log("FATAL AVR ERROR: " + error)
-	domoticz.log("FATAL AVR ERROR: " + error)
-	process.exit()
+// powermate: buttonDown
+powermate.on('buttonDown', function() {
+	DOWN = true;
+	// If we hold the button down for more than 2 seconds, let's call it a long press....
+	pressTimer = setTimeout(longClick, 2000);
 });
 
-// domoticz: error
-domoticz.on('error', function(error) {
-	console.log("FATAL MQTT ERROR: " + error)
-	process.exit()
+// powermate: buttonUp
+powermate.on('buttonUp', function() {
+	DOWN = false;
+	// If the timer is still going call it a short click
+	if (pressTimer._idleNext) {
+		if (dblClickTimer && dblClickTimer._idleNext) {
+			clearTimeout(dblClickTimer);
+			doubleClick();
+		} else {
+			dblClickTimer=setTimeout(singleClick,500);
+		}
+	}
+	clearTimeout(pressTimer);
 });
+
+// powermate: wheelturn
+powermate.on('wheelTurn', function(delta) {
+	clearTimeout(pressTimer);
+	// This is a right turn
+	if (delta > 0) {
+		if (DOWN) downRight(); // down
+		else right(delta); // up
+	}
+	// Left
+	if (delta < 0) {
+		if (DOWN) downLeft(); // down
+		else left(delta); // up
+    	}
+});
+
+// Begin Functions
 
 // setInput - Perform tasks every input change.
 function setInput(input) {
@@ -238,8 +282,105 @@ function setInput(input) {
 			receiver.mute(0)
 		}
 		receiver.selectInput(input)
+		powermate.setPulseAwake(true)
+		setTimeout(function() {
+			powermate.setPulseAwake(false)
+                        powermate.setBrightness(VOLUME*2.55)
+		}, 5000);
+
 	} 
 	INPUT = input
 }
 
-//exports.module.receiver = receiver;
+// Gessture Functions
+
+// Turn up volume
+function right(delta) {
+	if (READY) {
+		if(TRACE) { console.log("VOLUME: " + delta) }
+		READY = false
+		receiver.volumeUp(delta)
+		commandTimer = setTimeout(function() {
+			READY = true;
+		}, 100);
+	}
+}
+
+// Turn down volume
+function left(delta) {
+	if (READY) {
+		if(TRACE) { console.log("VOLUME: " + delta) }
+		READY = false
+		receiver.volumeDown(delta)
+		commandTimer = setTimeout(function() {
+			READY = true;
+		}, 100);
+	}
+}
+
+// Toggle mute
+function singleClick() {
+	if(TRACE) { console.log('Single Click') }
+	receiver.muteToggle();
+}
+
+// Return to Nexus
+function doubleClick() {
+	if(TRACE) { console.log('Double Click') }
+	setInput(15)
+}
+
+// Power Off
+function longClick() {
+	if(TRACE) { console.log('Long Click') }
+        receiver.power(false);
+	POWER=false
+}
+
+// Set Scenes
+function downRight() {
+	if(TRACE) { console.log('Down and Right') }
+	if (READY) {
+		READY = false
+		domoticz.scene(16)
+		commandTimer = setTimeout(function() {
+			READY = true;
+		}, 1000);
+	}
+}
+
+function downLeft() {
+	if(TRACE) { console.log('Down and Left') }
+	if (READY) {
+		READY = false
+		domoticz.scene(5)
+		commandTimer = setTimeout(function() {
+			READY = true;
+		}, 1000);
+	}
+}
+
+// Default LED State
+powermate.setPulseAsleep(true)
+powermate.brightness(0)
+
+// receiver: error
+receiver.on('error', function(error) {
+	console.log("FATAL AVR ERROR: " + error)
+	domoticz.log("FATAL AVR ERROR: " + error)
+	process.exit()
+});
+
+// domoticz: error
+domoticz.on('error', function(error) {
+	console.log("FATAL MQTT ERROR: " + error)
+	process.exit()
+});
+
+// OnExit
+process.on( "SIGINT", function() {
+	powermate.close()
+        setTimeout(function() {
+		process.exit()
+        }, 500);
+});

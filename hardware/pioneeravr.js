@@ -98,12 +98,17 @@ Pioneer.prototype.volume = function(level) {
 	this.client.write(pad(level,3) + "VL\r");
 };
 
-Pioneer.prototype.volumeUp = function() {
-	this.client.write("VU\r");
+Pioneer.prototype.volumeUp = function(times) {
+        for (var i=0;i<times;i++) {
+		this.client.write("VU\r");
+	}
 };
 
-Pioneer.prototype.volumeDown = function() {
-	this.client.write("VD\r");
+Pioneer.prototype.volumeDown = function(times) {
+	times = Math.abs(times)
+        for (var i=0;i<times;i++) {
+		this.client.write("VD\r");
+	}
 };
 
 Pioneer.prototype.selectInput = function(input) {
