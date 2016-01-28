@@ -9,7 +9,7 @@ var 	avr 		= require('./hardware/pioneeravr.js'),
 	television	= require('./hardware/sharptv.js'),
 //	usbknob		= require('./hardware/powermate.js'),
 	mqtt            = require('node-domoticz-mqtt'),
-	TRACE		= false;
+	TRACE		= true;
 
 var options = {
 	avrPort: 	50000,
@@ -63,7 +63,7 @@ options.idx.push(switches['volume'])
 var	receiver 	= new avr.Pioneer(options);
 var	tv 		= new television.SharpTV(options);
 var 	domoticz 	= new mqtt.domoticz(options);
-//var 	vol		= new usbknob.PowerMote(options);
+//var 	remote		= new usbknob.PowerMate(options);
 
 var	POWER		= false;
 var	MUTE		= false;
@@ -98,21 +98,19 @@ domoticz.on('data', function(data) {
 	// Input Selector Switch
 	if (data.idx === switches['inputs']) {
 		level = parseInt(data.svalue1)
-		if ((inputs[level]) && (inputs[level][0] !== INPUT)) {
+		if ((level) && (inputs[level][0] !== INPUT)) {
 			if (TRACE) { console.log("DOMO: Input " + inputs[level][1]) }
 			setInput(inputs[level][0])
 		} else if ((!level) && (POWER)) {
 			if (TRACE) { console.log("DOMO: Power Off") }
 			receiver.power(0)
 			tv.power(0)
-			POWER = false
-			INPUT = false
 		}
 	}
 	// Audio Mode Selector Switch
 	if (data.idx === switches['modes']) {
 		level = parseInt(data.svalue1)
-		if ((modes[level]) && (modes[level][0] !== MODE)) {
+		if (parseInt((modes[level])) && (modes[level][0] !== MODE)) {
 			if (TRACE) { console.log("DOMO: Audio Mode " + modes[level][1]) }
 			receiver.listeningMode(modes[level][0])
 			MODE = modes[level][0]
@@ -129,11 +127,11 @@ domoticz.on('data', function(data) {
 			setTimeout(function() {
 				WAIT=false
 			}, 500);
-		} else if (data.nvalue === 0) {
+		} else if ((data.nvalue === 0) && (!MUTE)) {
 			if (TRACE) { console.log("DOMO: Mute ON") }
 			MUTE=1
 			receiver.mute(true)
-		} else if (data.nvalue === 1) {
+		} else if ((data.nvalue === 1) && (MUTE)) {
 			if (TRACE) { console.log("DOMO: Mute OFF") }
 			MUTE=0
 			receiver.mute(false)			
@@ -148,12 +146,16 @@ domoticz.on('data', function(data) {
 
 // receiver: power
 receiver.on('power', function(pwr) {
-	if ((!pwr) && (POWER)) {
+	if (!pwr) {
 		domoticz.switch(switches['inputs'],0)
+		domoticz.switch(switches['volume'],0)
+		domoticz.switch(switches['modes'],0)
 		domoticz.log("<HTC> Powering Down")
 		tv.power(0)
-	} else if ((pwr) && (!POWER)) {
+	} else if (pwr) {
 		domoticz.log("<HTC> Powering On.")
+		domoticz.switch(switches['volume'],255)
+		domoticz.switch(switches['modes'],10)
 		tv.power(1)
 	}
 	POWER = pwr
@@ -161,7 +163,7 @@ receiver.on('power', function(pwr) {
 
 // receiver: volume
 receiver.on('volume', function(val) {
-	if ((POWER) && (switches['volume']) && (VOLUME !== val) && (!WAIT)) {
+	if ((switches['volume']) && (VOLUME !== val) && (!WAIT)) {
 		VOLUME=val
 		domoticz.switch(switches['volume'],parseInt(val))
 	}
@@ -169,20 +171,21 @@ receiver.on('volume', function(val) {
 
 // receiver: mute
 receiver.on('mute', function(mute) {
-	if ((POWER) && (switches['volume'])) {
-		if(mute) {
-			MUTE = true
+	if (switches['volume']) {
+		if ((mute) && (!MUTE)) {
 			domoticz.switch(switches['volume'],0)
-		} else {
-			MUTE = false
-			domoticz.switch(switches['volume'],100)
+			tv.mute(true)
+		} else if (MUTE) {
+			domoticz.switch(switches['volume'],255)
+			tv.mute(false)
 		}
+		MUTE = mute
 	}
 });
 
 // receiver: input
 receiver.on('input', function(input,inputName) {
-	if ((POWER) && (parseInt(input) !== parseInt(INPUT))) {
+	if ((parseInt(input) !== parseInt(INPUT))) {
 		var i = Object.keys(inputs);
 		i.forEach(function(id){
 			if (input === inputs[id][0]) {
@@ -196,7 +199,7 @@ receiver.on('input', function(input,inputName) {
 
 // receiver: listening modes
 receiver.on('listenMode', function(mode,modeName) {
-	if ((POWER) && (switches['modeText'])) {
+	if (switches['modeText']) {
 		domoticz.device(switches['modeText'],0,modeName)
 	}
 });
@@ -204,7 +207,7 @@ receiver.on('listenMode', function(mode,modeName) {
 
 // receiver: display
 receiver.on('display', function(display) {
-	if ((POWER) && (switches['displayText'])) {
+	if (switches['displayText']) {
 		domoticz.device(switches['displayText'],0,display)
 	}
 });
@@ -216,17 +219,27 @@ receiver.on('error', function(error) {
 	process.exit()
 });
 
+// domoticz: error
+domoticz.on('error', function(error) {
+	console.log("FATAL MQTT ERROR: " + error)
+	process.exit()
+});
+
 // setInput - Perform tasks every input change.
 function setInput(input) {
 	if ((input !== INPUT) && (INPUT)) {
-		receiver.selectInput(input)
 		if (!POWER) {
 			tv.power(1)
 			receiver.power(1)
+			domoticz.switch(switches['volume'],255)
+			domoticz.switch(switches['modes'],10)
 		}
 		if (MUTE) {
 			receiver.mute(0)
 		}
+		receiver.selectInput(input)
 	} 
 	INPUT = input
 }
+
+//exports.module.receiver = receiver;

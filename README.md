@@ -24,6 +24,7 @@ This program communicates with my tv via rs232 and with my audio receiver via TC
 * Debian Jessie w/NodeJS from NodeSource repository
 * AndroidTV OSD Remote - https://github.com/nayrnet/androidtv-osd-remote
 * Mosquitto MQTT Broker
+* GC++ 4.8 - (apt-get install gobjc++-4.8)
 
 ### Domoticz Devices:
 * Input Selector - Change Video Inputs and Toggle Power

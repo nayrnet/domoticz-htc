@@ -169,6 +169,7 @@ function handleData(self, d) {
         	if (TRACE) {
             		console.log("AVR: mute: " + mute);
         	}
+		self.emit("mute", mute);
     	}
     	else if (data.startsWith("FN")) {
         	input = data.substr(2, 2);

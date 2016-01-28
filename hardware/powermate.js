@@ -2,21 +2,23 @@
 // PowerMate USB - This is the physical device that controlls the AVR.
 
 var	PowerMate 	= require('node-powermate'),
-	avr 		= require('./pioneeravr.js'),
+//	reciever	= require('../server.js'),
 	events		= require('events'),
 	util   		= require('util').inherits;
+
+var reciever = false;
 
 var 	powermate 	= new PowerMate(),
 	isDown 		= false,
 	commandReady 	= true,
+	TRACE		= true,
 	dblClickTimer,
 	pressTimer,
 	commandTimer;
 
-var powerMote = function(options) {
+var PowerMate = function(options) {
 	events.EventEmitter.call(this); // inherit from EventEmitter
     	TRACE = options.log;
-	var	receiver 	= new avr.Pioneer(options),
 }
 
 // Gessture Functions
@@ -24,6 +26,7 @@ var powerMote = function(options) {
 // Turn up volume
 function right(delta) {
 	if (commandReady) {
+		if(TRACE) { console.log(delta) }
 		commandReady = false;
 		reciever.volumeUp();
 		commandTimer = setTimeout(function() {
@@ -34,6 +37,7 @@ function right(delta) {
 // Turn down volume
 function left(delta) {
 	if (commandReady) {
+		if(TRACE) { console.log(delta) }
 		commandReady = false;
 		reciever.volumeDown();
 		commandTimer = setTimeout(function() {
@@ -43,22 +47,27 @@ function left(delta) {
 }
 // Toggle mute
 function singleClick() {
+	if(TRACE) { console.log('Single Click') }
 	receiver.muteToggle();
 }
 // Return to Nexus
 function doubleClick() {
+	if(TRACE) { console.log('Double Click') }
         receiver.power(true);
 	receiver.selectInput(15);
 }
 // Power Off
 function longClick() {
+	if(TRACE) { console.log('Long Click') }
         receiver.power(false);
 }
 // TODO
 function downRight() {
+	if(TRACE) { console.log('Down and Right') }
 }
 
 function downLeft() {
+	if(TRACE) { console.log('Down and Left') }
 }
 
 // TODO: LED Functions
@@ -101,5 +110,5 @@ powermate.on('wheelTurn', function(delta) {
     	}
 });
 
-exports.Pioneer = reciever;
-exports.powerMote = powerMote;
+exports.powermate = powermate;
+exports.PoweMate = PowerMate;

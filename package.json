@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nayrnet/avr-controller.git"
+    "url": "git+https://github.com/nayrnet/domoticz-htc.git"
   },
   "keywords": [
     "Pioneer",
@@ -34,7 +34,7 @@
   "author": "Ryan Hunt",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/nayrnet/avr-controller/issues"
+    "url": "https://github.com/nayrnet/domoticz-htc/issues"
   },
-  "homepage": "https://github.com/nayrnet/avr-controller#readme"
+  "homepage": "https://github.com/nayrnet/domoticz-htc#readme"
 }
