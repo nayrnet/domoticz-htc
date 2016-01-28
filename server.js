@@ -314,6 +314,7 @@ function setInput(input) {
 			receiver.mute(0)
 		}
 		receiver.selectInput(input)
+		receiver.volume(33)
 		powermate.setPulseAwake(true)
 		setTimeout(function() {
 			powermate.setPulseAwake(false)
