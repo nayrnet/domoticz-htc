@@ -21,6 +21,12 @@ cp config.example config.js
 nano config.js
 // Edit aproprately, save.
 ```
+## Update:
+```bash
+git pull
+./daemon.js stop
+./daemon.js start
+```
 
 ### My Hardware:
 * Pioneer SC-1222-K
