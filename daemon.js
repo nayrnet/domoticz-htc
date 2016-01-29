@@ -1,9 +1,9 @@
 #!/usr/bin/nodejs
-// Starts and Stops the AVR Controller in the background.
+// Starts and Stops the HTC server in the background, creates a pid file for systemd watchdog.
 
 var daemon = require("daemonize2").setup({
 	main: "server.js",
-	name: "Home Theatre Controller",
+	name: "domoticz-htc",
 	pidfile: "htc.pid"
 });
 

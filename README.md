@@ -76,5 +76,9 @@ Selector Switch:
 * Volume Slider in Domoticz
 * Add support for ZONE2
 
+### Pioneer Setup Prefrences:
+* 065SUC  - Set Power ON Level to 065
+* 3SUD - Set Volume Limit to 0dB (161)
+
 #### Support:
 > No support provided or warranty impied, this project is avilable for educational use and my own personal tracking.

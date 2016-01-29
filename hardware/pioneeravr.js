@@ -4,6 +4,7 @@ var 	util		= require('util'),
     	net    		= require('net'),
     	events 		= require('events'),
     	request 	= require('request'),
+	MAXVOL		= 161,			// Max Volume 0db (Telnet: 3SUD to hard enforce)
 	TRACE 		= true,
 	DETAIL	 	= true;
 
@@ -12,6 +13,7 @@ var Pioneer = function(options) {
 	this.client = this.connect(options);
 	this.inputNames = {};
 	TRACE = options.log;
+	MAXVOL = options.maxvol;
 };
 
 util.inherits(Pioneer, events.EventEmitter);
@@ -89,7 +91,7 @@ Pioneer.prototype.volume = function(level) {
 	if (TRACE) {
 		console.log("setting volume: " + level + "%");
 	}
-	val = Math.round((level/100) * 121);
+	val = Math.round((level/100) * MAXVOL);
 	
 	var level = val.toString()
 	if (TRACE) {
@@ -162,7 +164,7 @@ function handleData(self, d) {
         	var vol = data.substr(3, 3);
         
         	// translate to dB.
-        	var val = Math.round((parseInt(vol) * 100) / 121);
+        	var val = Math.round((parseInt(vol) * 100) / MAXVOL);
         
         	if (TRACE) {
             		console.log("AVR: volume " + val + "%");
