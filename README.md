@@ -45,9 +45,8 @@ This program communicates with my tv via rs232 and with my audio receiver via TC
 ### Files:
 * config.js - Main configuration, use provided example.. not overwritten on update.
 * server.js - The main app, if debugging you can run this directly from command line.
-* daemon.js - This is app starts/stops the server.
-* hardware/pioneeravr.js - Functions for AVR Commands and Monitoring.
-* hardware/powermate.js - Functions for the PowerMate USB Knob.
+* daemon.js - This is app forks the daemon and starts/stops the server.
+* hardware/pioneeravr.js - Functions for AVR Commands.
 * hardware/sharptv.js - Functions for TV Commands.
 * screenshots/ - Images of Domoticz & Setup
 * systemd/avrcontroller.service - SystemD Service for Starting/Restarting.
