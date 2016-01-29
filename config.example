@@ -1,6 +1,6 @@
 // DOMOTICZ-HTC Example Configuration
 // rename to config.js after making your changes.
-// All Configuration options are made here
+// All Configuration options are made here, wont be overwritten on update.
 
 // BEGIN CONFIG
 var options = {
