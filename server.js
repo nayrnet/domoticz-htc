@@ -241,6 +241,7 @@ receiver.on('input', function(input,inputName) {
 			}
 		});
 	}
+	INPUT = parseInt(input)
 });
 
 // receiver: listening modes
