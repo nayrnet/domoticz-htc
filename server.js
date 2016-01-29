@@ -2,55 +2,11 @@
 // Domoticz Home Theatre Controller (DOMOTICZ-HTC)
 // NodeJS Framework for integrating Home Theatre Equipment with Domoticz.
 
-// The default setup is my own and uses Pioneer AVR, SharpTV and PowerMate USB hardware
-// Expanding it from here to suit your own hardware configuration should be straight forward.
-
-// BEGIN CONFIG
-var options = {
-	avrPort: 	50000,			// Dedicated Telnet port on Pioneer
-	avrHost: 	"192.168.4.66",		// IP Address of Pioneer
-	tvPort: 	"/dev/ttyUSB-TV",	// Serial Port for TV
-	idx:		[ ],
-	request:	false,
-	powermate:	true,			// Enable PowerMate Volume Knob
-	sharptv:	true,			// Enable SharpTV Sync & OSD
-	host:		'localhost',		// MQTT Broker Host
-        status:         'htc/connected',
-	log: 		false			// Debug Logging
-};
-
-// Domoticz Switches - NAME : IDX
-var switches = {
-	inputs		: 145,			// Input Selector Switch
-	modes		: 168,			// Mode Selector Switch
-	volume		: 0,			// Volume Dimmer (BROKE)
-//	volume		: 177,
-	displayText	: 0,			// Front Display Text (0 Disables)
-	modeText	: 167,			// Audio Mode Text
-	lights		: 180,			// Lights to dim w/PowerMate
-};
-
-// Domoticz Input Selector - LEVEL : [INPUT, NAME]
-var inputs = {
-	0		: [ 0, 'Power Off' ],
-	10		: [ 15, 'Nexus Player' ],
-	20		: [ 04, 'PlayStation 3' ],
-	30		: [ 22, 'PlayStation 4' ],
-	40		: [ 24, 'Security Cameras' ],
-};
-
-
-// Domoticz Audio Mode Selector - LEVEL : [MODE, NAME]
-var modes = {
-	10		: [ '0006', 'Auto Surround' ],
-	20		: [ '0151', 'Auto Level Control' ],
-	30		: [ '0007', 'Stream Direct' ],
-	40		: [ '0001', 'Stereo' ],
-	50		: [ '0012', 'ProLogic' ],
-	60		: [ '0014', 'ProLogic Music' ],
-	70		: [ '0112', 'Extended Stereo'],
-};
-// END CONFIG
+// Load Configuration
+var	options		= require('./config').options;
+var	switches	= require('./config').switches;
+var	inputs		= require('./config').inputs;
+var	modes		= require('./config').modes;
 
 // Load Modules & Hardware
 var 	avr 		= require('./hardware/pioneeravr.js');

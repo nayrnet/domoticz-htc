@@ -1,0 +1,58 @@
+// DOMOTICZ-HTC Example Configuration
+// rename to config.js after making your changes.
+// All Configuration options are made here
+
+// BEGIN CONFIG
+var options = {
+	avrPort: 	50000,			// Dedicated Telnet port on Pioneer
+	avrHost: 	"192.168.4.66",		// IP Address of Pioneer
+	tvPort: 	"/dev/ttyUSB-TV",	// Serial Port for TV
+	idx:		[ ],			// Init IDX Array
+	request:	false,			// Required for MQTT
+	powermate:	true,			// Enable PowerMate Volume Knob
+	sharptv:	true,			// Enable SharpTV Sync & OSD
+	host:		'localhost',		// MQTT Broker Host
+        status:         'htc/connected',	// MQTT Status Path
+	log: 		false			// Debug Logging
+};
+
+// Domoticz Switches - NAME : IDX ( 0 = Disabled)
+var switches = {
+	inputs		: 145,			// Input Selector Switch (Required)
+	modes		: 168,			// Mode Selector Switch (Required)
+	volume		: 0,			// Volume Dimmer
+	zone2		: 0,			// Zone2 Volume Dimmer
+	displayText	: 0,			// Front Display Text
+	modeText	: 167,			// Audio Mode Text
+	lights		: 180,			// Lights to dim w/PowerMate
+};
+
+// See your Pioneer IP & RS-232 Control Commands doc for Input and Audio Mode Numbers.
+
+// Domoticz Input Selector - LEVEL : [INPUT, NAME]
+var inputs = {
+	0		: [ 0, 'Power Off' ],
+	10		: [ 15, 'Nexus Player' ],
+	20		: [ 04, 'PlayStation 3' ],
+	30		: [ 22, 'PlayStation 4' ],
+	40		: [ 24, 'Security Cameras' ],
+};
+
+
+// Domoticz Audio Mode Selector - LEVEL : [MODE, NAME]
+var modes = {
+	10		: [ '0006', 'Auto Surround' ],
+	20		: [ '0151', 'Auto Level Control' ],
+	30		: [ '0007', 'Stream Direct' ],
+	40		: [ '0001', 'Stereo' ],
+	50		: [ '0012', 'ProLogic' ],
+	60		: [ '0014', 'ProLogic Music' ],
+	70		: [ '0112', 'Extended Stereo'],
+};
+
+module.exports = options
+module.exports = switches
+module.exports = inputs
+module.exports = modes
+
+// END CONFIG
