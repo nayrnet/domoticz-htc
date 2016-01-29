@@ -1,5 +1,0 @@
-config.js
-node_modules
-*.log
-*.pid
-.gitignore
