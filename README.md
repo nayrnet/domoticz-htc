@@ -9,6 +9,19 @@ This program communicates with my tv via rs232 and with my audio receiver via TC
 
 > I have completely redone this project so its more portable and easier to adopt.
 
+## Install:
+```bash
+git clone https://github.com/nayrnet/domoticz-htc.git htc
+cd htc
+npm install
+nano systemd/htc.service
+// make sure all paths and users are correct then save.
+sudo cp systemd/htc.service /etc/systemd/service/
+cp config.example config.js
+nano config.js
+// Edit aproprately.
+```
+
 ### My Hardware:
 * Pioneer SC-1222-K
   * Google Nexus Player
