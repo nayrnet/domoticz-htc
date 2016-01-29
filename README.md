@@ -15,11 +15,11 @@ git clone https://github.com/nayrnet/domoticz-htc.git htc
 cd htc
 npm install
 nano systemd/htc.service
-// make sure all paths and users are correct then save.
+// update paths and users, save.
 sudo cp systemd/htc.service /etc/systemd/service/
 cp config.example config.js
 nano config.js
-// Edit aproprately.
+// Edit aproprately, save.
 ```
 
 ### My Hardware:
