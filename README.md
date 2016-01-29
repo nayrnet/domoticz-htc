@@ -83,7 +83,7 @@ Selector Switch:
 * Add support for ZONE2
 
 ### Pioneer Setup Prefrences:
-* 055SUC  - Set Power ON Level to 065
+* 055SUC  - Set Power ON Level to 055
 * 3SUD - Set Volume Limit to 0dB (161)
 
 #### Support:
