@@ -4,14 +4,14 @@
 
 // BEGIN CONFIG
 var options = {
-	avrPort: 	50000,			// Dedicated Telnet port on Pioneer
-	avrHost: 	"192.168.4.66",		// IP Address of Pioneer
+	powermate:	true,			// Enable PowerMate Volume Knob
+	sharptv:	true,			// Enable SharpTV Sync & OSD
+	host:		'localhost',		// MQTT Broker Host (Domoticz)
+	avrPort: 	21,			// Dedicated Telnet port on Pioneer
+	avrHost: 	"192.168.1.100",	// IP Address of Pioneer
 	tvPort: 	"/dev/ttyUSB-TV",	// Serial Port for TV
 	idx:		[ ],			// Init IDX Array
 	request:	false,			// Required for MQTT
-	powermate:	true,			// Enable PowerMate Volume Knob
-	sharptv:	true,			// Enable SharpTV Sync & OSD
-	host:		'localhost',		// MQTT Broker Host
         status:         'htc/connected',	// MQTT Status Path
 	log: 		false			// Debug Logging
 };
