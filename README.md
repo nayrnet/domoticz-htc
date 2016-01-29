@@ -75,6 +75,7 @@ Selector Switch:
 
 #### TO-DO:
 * Volume Slider in Domoticz
+* Add support for ZONE2
 
 #### Support:
 > No support provided or warranty impied, this project is avilable for educational use and my own personal tracking.
