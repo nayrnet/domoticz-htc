@@ -3,13 +3,13 @@
 [![npm](https://img.shields.io/npm/v/npm.svg)]()
 [![node](https://img.shields.io/node/v/gh-badges.svg)]()
 
-Modular NodeJS service interfaces with various Home Theatre hardware and Domoticz to provide a unified and hackable solution.
+NodeJS service interfaces with various Home Theatre hardware and Domoticz to provide a unified and extensable solution.
 
 This program communicates with my tv via rs232 and with my audio receiver via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob. Communicaiton with Domoticz is done via MQTT API.
 
 > I have completely redone this project so its more portable and easier to adopt.
 
-### Hardware:
+### My Hardware:
 * Pioneer SC-1222-K
   * Google Nexus Player
   * Sony PlayStation 3
@@ -43,6 +43,7 @@ This program communicates with my tv via rs232 and with my audio receiver via TC
 * LED Pulse on Power/Input change, On/Off with TV & AVR.
 
 ### Files:
+* config.js - Main configuration, use provided example.. not overwritten on update.
 * server.js - The main app, if debugging you can run this directly from command line.
 * daemon.js - This is app starts/stops the server.
 * hardware/pioneeravr.js - Functions for AVR Commands and Monitoring.
