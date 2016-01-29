@@ -5,33 +5,29 @@
 // The default setup is my own and uses Pioneer AVR, SharpTV and PowerMate USB hardware
 // Expanding it from here to suit your own hardware configuration should be straight forward.
 
-var 	avr 		= require('./hardware/pioneeravr.js'),
-	television	= require('./hardware/sharptv.js'),
-	usbremote 	= require('node-powermate'),
-	mqtt            = require('node-domoticz-mqtt'),
-	TRACE		= false;
-
+// BEGIN CONFIG
 var options = {
-	avrPort: 	50000,
-	avrHost: 	"192.168.4.66",
-	tvPort: 	"/dev/ttyUSB-TV",
-	tvBaud: 	"9600",
+	avrPort: 	50000,			// Dedicated Telnet port on Pioneer
+	avrHost: 	"192.168.4.66",		// IP Address of Pioneer
+	tvPort: 	"/dev/ttyUSB-TV",	// Serial Port for TV
 	idx:		[ ],
 	request:	false,
-	host:		'localhost',
+	powermate:	true,			// Enable PowerMate Volume Knob
+	sharptv:	true,			// Enable SharpTV Sync & OSD
+	host:		'localhost',		// MQTT Broker Host
         status:         'htc/connected',
-	log: 		false
+	log: 		false			// Debug Logging
 };
 
 // Domoticz Switches - NAME : IDX
 var switches = {
-	inputs		: 145,
-	modes		: 168,
-	volume		: 0,
+	inputs		: 145,			// Input Selector Switch
+	modes		: 168,			// Mode Selector Switch
+	volume		: 0,			// Volume Dimmer (BROKE)
 //	volume		: 177,
-	displayText	: 0,	// 0 Disables
-	modeText	: 167,
-	lights		: 180,	
+	displayText	: 0,			// Front Display Text (0 Disables)
+	modeText	: 167,			// Audio Mode Text
+	lights		: 180,			// Lights to dim w/PowerMate
 };
 
 // Domoticz Input Selector - LEVEL : [INPUT, NAME]
@@ -54,20 +50,32 @@ var modes = {
 	60		: [ '0014', 'ProLogic Music' ],
 	70		: [ '0112', 'Extended Stereo'],
 };
+// END CONFIG
+
+// Load Modules & Hardware
+var 	avr 		= require('./hardware/pioneeravr.js');
+var	mqtt            = require('node-domoticz-mqtt');
+var	receiver 	= new avr.Pioneer(options);
+var 	domoticz 	= new mqtt.domoticz(options);
+
+if (options.sharptv) {
+	var	television	= require('./hardware/sharptv.js');
+	var	tv 		= new television.SharpTV(options);
+} else { var	tv		= false; }
+
+if (options.powermate) {
+	var	usbremote 	= require('node-powermate');
+	var 	powermate 	= new usbremote();
+} else { var	powermate	= false; }
 
 // Add Switches to MQTT Data Event
 options.idx.push(switches['inputs'])
 options.idx.push(switches['modes'])
-options.idx.push(switches['volume'])
-options.idx.push(switches['lights'])
+if (switches['volume']) { options.idx.push(switches['volume']) }
+if (switches['lights']) {  options.idx.push(switches['lights']) }
 
-// Setup Hardware
-
-var	receiver 	= new avr.Pioneer(options);
-var	tv 		= new television.SharpTV(options);
-var 	domoticz 	= new mqtt.domoticz(options);
-var 	powermate 	= new usbremote();
-
+// Globals
+var	TRACE		= options.log;
 var	POWER		= false;
 var	MUTE		= false;
 var	INPUT		= false;
@@ -118,10 +126,10 @@ domoticz.on('data', function(data) {
 		} else if ((!level) && (POWER)) {
 			if (TRACE) { console.log("DOMO: Power Off") }
 			receiver.power(0)
-			tv.power(0)
+			if (tv) { tv.power(0) }
 		} else if ((!POWER) && (level)) {
 			receiver.power(1)
-			tv.power(1)
+			if (tv) { tv.power(1) }
 		}
 	}
 	// Audio Mode Selector Switch
@@ -179,18 +187,18 @@ receiver.on('power', function(pwr) {
 		domoticz.switch(switches['inputs'],0)
 		domoticz.switch(switches['volume'],0)
 		domoticz.switch(switches['modes'],0)
-		powermate.setBrightness(0)
-		powermate.setPulseAsleep(true)
+		if (powermate) { powermate.setBrightness(0) }
+		if (powermate) { powermate.setPulseAsleep(true) }
 		domoticz.log("<HTC> Powering Down")
-		tv.power(0)
+		if (tv) { tv.power(0) }
 	} else {
 		domoticz.log("<HTC> Powering On.")
 		domoticz.switch(switches['volume'],255)
 		domoticz.switch(switches['modes'],10)
-		tv.power(1)
-		if (VOLUME) {
+		if (tv) { tv.power(1) }
+		if ((VOLUME) && (powermate)) {
 			powermate.setBrightness(VOLUME*2.55)
-		} else {
+		} else if (powermate) {
 			powermate.setBrightness(255)
 		}
 	}
@@ -203,8 +211,8 @@ receiver.on('volume', function(val) {
 	if ((switches['volume']) && (VOLUME !== val) && (!WAIT)) {
 		domoticz.switch(switches['volume'],parseInt(val))
 	}
-	tv.volume(val)
-	powermate.setBrightness(val*2.55)
+	if (tv) { tv.volume(val) }
+	if (powermate) { powermate.setBrightness(val*2.55) }
 	VOLUME=val
 });
 
@@ -215,16 +223,20 @@ receiver.on('mute', function(mute) {
 		if (switches['volume']) {
 			domoticz.switch(switches['volume'],0)
 		}
-		tv.mute(1)
-		powermate.setPulseSpeed(511)
-		powermate.setPulseAwake(true)
+		if (tv) { tv.mute(1) }
+		if (powermate) { 
+			powermate.setPulseSpeed(511)
+			powermate.setPulseAwake(true)
+		}
 	} else if (MUTE) {
 		if (switches['volume']) {
 			domoticz.switch(switches['volume'],255)
 		}
-		tv.mute(0)
-		powermate.setPulseAwake(false)
-		powermate.setBrightness(VOLUME*2.55)
+		if (tv) { tv.mute(0) }
+		if (powermate) { 
+			powermate.setPulseAwake(false)
+			powermate.setBrightness(VOLUME*2.55)
+		}
 	}
 	MUTE = mute
 });
@@ -258,57 +270,62 @@ receiver.on('display', function(display) {
 	}
 });
 
-// powermate: buttonDown
-powermate.on('buttonDown', function() {
-	DOWN = true;
-	// If we hold the button down for more than 2 seconds, let's call it a long press....
-	pressTimer = setTimeout(longClick, 2000);
-});
+// Begin PowerMate Calls
+if (powermate) {
+	// powermate: buttonDown
+	powermate.on('buttonDown', function() {
+		DOWN = true;
+		// If we hold the button down for more than 2 seconds, let's call it a long press....
+		pressTimer = setTimeout(longClick, 2000);
+	});
 
-// powermate: buttonUp
-powermate.on('buttonUp', function() {
-	DOWN = false;
-	// If the timer is still going call it a short click
-	if (pressTimer._idleNext) {
-		if (dblClickTimer && dblClickTimer._idleNext) {
-			clearTimeout(dblClickTimer);
-			doubleClick();
-		} else {
-			dblClickTimer=setTimeout(singleClick,500);
+	// powermate: buttonUp
+	powermate.on('buttonUp', function() {
+		DOWN = false;
+		// If the timer is still going call it a short click
+		if (pressTimer._idleNext) {
+			if (dblClickTimer && dblClickTimer._idleNext) {
+				clearTimeout(dblClickTimer);
+				doubleClick();
+			} else {
+				dblClickTimer=setTimeout(singleClick,500);
+			}
 		}
-	}
-	clearTimeout(pressTimer);
-});
+		clearTimeout(pressTimer);
+	});
 
-// powermate: wheelturn
-powermate.on('wheelTurn', function(delta) {
-	clearTimeout(pressTimer);
-	// This is a right turn
-	if (delta > 0) {
-		if (DOWN) downRight(delta); // down
-		else right(delta); // up
-	}
-	// Left
-	if (delta < 0) {
-		if (DOWN) downLeft(delta); // down
-		else left(delta); // up
-    	}
-});
+	// powermate: wheelturn
+	powermate.on('wheelTurn', function(delta) {
+		clearTimeout(pressTimer);
+		// This is a right turn
+		if (delta > 0) {
+			if (DOWN) downRight(delta); // down
+			else right(delta); // up
+		}
+		// Left
+		if (delta < 0) {
+			if (DOWN) downLeft(delta); // down
+			else left(delta); // up
+	    	}
+	});
+}
 
 // Begin Functions
 
 // setInput - Perform tasks every input change.
 function setInput(input) {
 	if (!POWER) {
-		tv.power(1)
+		if (tv) { tv.power(1) }
 		receiver.power(1)
 		domoticz.switch(switches['volume'],255)
 		domoticz.switch(switches['modes'],10)
-		powermate.setPulseAwake(true)
-		setTimeout(function() {
-			powermate.setPulseAwake(false)
-                        powermate.setBrightness(VOLUME*2.55)
-		}, 10000);
+		if (powermate) { 
+			powermate.setPulseAwake(true)
+			setTimeout(function() {
+				powermate.setPulseAwake(false)
+                	        powermate.setBrightness(VOLUME*2.55)
+			}, 10000);
+		}
 	}
 	if (input !== INPUT) {
 		if (MUTE) {
@@ -316,12 +333,13 @@ function setInput(input) {
 		}
 		receiver.selectInput(input)
 		receiver.volume(33)
-		powermate.setPulseAwake(true)
-		setTimeout(function() {
-			powermate.setPulseAwake(false)
-                        powermate.setBrightness(VOLUME*2.55)
-		}, 5000);
-
+		if (powermate) { 
+			powermate.setPulseAwake(true)
+			setTimeout(function() {
+				powermate.setPulseAwake(false)
+                	        powermate.setBrightness(VOLUME*2.55)
+			}, 5000);
+		}
 	} 
 	INPUT = input
 }
@@ -400,8 +418,10 @@ function downLeft(delta) {
 }
 
 // Default LED State
-powermate.setPulseAsleep(true)
-powermate.brightness(0)
+if (powermate) { 
+	powermate.setPulseAsleep(true)
+	powermate.brightness(0)
+}
 
 // receiver: error
 receiver.on('error', function(error) {
@@ -418,7 +438,7 @@ domoticz.on('error', function(error) {
 
 // OnExit
 process.on( "SIGINT", function() {
-	powermate.close()
+	if (powermate) { powermate.close() }
         setTimeout(function() {
 		process.exit()
         }, 500);
