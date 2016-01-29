@@ -4,8 +4,8 @@
 
 // BEGIN CONFIG
 var options = {
-	powermate:	true,			// Enable PowerMate Volume Knob
-	sharptv:	true,			// Enable SharpTV Sync & OSD
+	powermate:	false,			// Enable PowerMate Volume Knob
+	sharptv:	false,			// Enable SharpTV Sync & OSD
 	host:		'localhost',		// MQTT Broker Host (Domoticz)
 	avrPort: 	21,			// Dedicated Telnet port on Pioneer
 	avrHost: 	"192.168.1.100",	// IP Address of Pioneer
