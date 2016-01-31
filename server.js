@@ -7,6 +7,8 @@ var	options		= require('./config').options;
 var	switches	= require('./config').switches;
 var	inputs		= require('./config').inputs;
 var	modes		= require('./config').modes;
+var	zoneInputs	= require('./config').zoneInputs;
+var	radio		= require('./config').radio;
 
 // Load Modules & Hardware
 var 	avr 		= require('./hardware/pioneeravr.js');
@@ -28,7 +30,13 @@ if (options.powermate) {
 options.idx.push(switches['inputs'])
 options.idx.push(switches['modes'])
 if (switches['volume']) { options.idx.push(switches['volume']) }
+if (switches['z2volume']) { options.idx.push(switches['volume']) }
+if (switches['z3volume']) { options.idx.push(switches['volume']) }
 if (switches['lights']) {  options.idx.push(switches['lights']) }
+if (switches['zone2']) {  options.idx.push(switches['zone2']) }
+if (switches['zone3']) {  options.idx.push(switches['zone3']) }
+if (switches['zone4']) {  options.idx.push(switches['zone4']) }
+if (switches['tuner']) {  options.idx.push(switches['tuner']) }
 
 // Globals
 var	TRACE		= options.log;
@@ -96,7 +104,7 @@ domoticz.on('data', function(data) {
 	// Audio Mode Selector Switch
 	if (data.idx === switches['modes']) {
 		level = parseInt(data.svalue1)
-		if (parseInt((modes[level])) && (modes[level][0] !== MODE)) {
+		if ((modes[level]) && (modes[level][0] !== MODE)) {
 			if (TRACE) { console.log("DOMO: Audio Mode " + modes[level][1]) }
 			receiver.listeningMode(modes[level][0])
 			MODE = modes[level][0]
@@ -134,6 +142,14 @@ domoticz.on('data', function(data) {
 				if (TRACE) { console.log("LIGHTS: " + LIGHTS) }
 			}
 	        }, 15000);
+	}
+	// FM Tuner Selector Switch
+	if (data.idx === switches['tuner']) {
+		level = parseInt(data.svalue1)
+		if (radio[level]) {
+			if (TRACE) { console.log("DOMO: Tuner " + radio[level][1]) }
+			receiver.setTuner(radio[level][0])
+		}
 	}
 	if (TRACE) {
 	        message = JSON.stringify(data)

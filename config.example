@@ -78,9 +78,9 @@ var radio = {
 }
 // END CONFIG
 
-module.exports = options
-module.exports = switches
-module.exports = inputs
-module.exports = modes
-module.exports = zoneInputs
-module.exports = radio
+exports.options = options
+exports.switches = switches
+exports.inputs = inputs
+exports.modes = modes
+exports.zoneInputs = zoneInputs
+exports.radio = radio
