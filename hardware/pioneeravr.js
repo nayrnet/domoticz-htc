@@ -40,9 +40,26 @@ Pioneer.prototype.connect = function(options) {
     	return client;
 };
 
+// Begin Query Functions
+
 Pioneer.prototype.querypower = function() {	
     	var self = this;
     	self.client.write("?P\r");		// query power state
+}
+
+Pioneer.prototype.query2power = function() {	
+    	var self = this;
+    	self.client.write("?AP\r");		// query zone 2 power state
+}
+
+Pioneer.prototype.query3power = function() {	
+    	var self = this;
+    	self.client.write("?BP\r");		// query zone 3 power state
+}
+
+Pioneer.prototype.query4power = function() {	
+    	var self = this;
+    	self.client.write("?ZEP\r");		// query zone 4 power state
 }
 
 Pioneer.prototype.querymute = function() {	
@@ -50,10 +67,37 @@ Pioneer.prototype.querymute = function() {
     	self.client.write("?M\r");		// query mute state
 }
 
-Pioneer.prototype.queryinput = function() {	
+Pioneer.prototype.query2mute = function() {	
+    	var self = this;
+    	self.client.write("?Z2M\r");		// query zone 2 mute state
+}
+
+Pioneer.prototype.query3mute = function() {	
+    	var self = this;
+    	self.client.write("?Z3M\r");		// query zone 3 mute state
+}
+
+Pioneer.prototype.queryinput = function() {
     	var self = this;
 	self.client.write("?F\r");		// query input
 }
+
+Pioneer.prototype.query2input = function() {
+    	var self = this;
+	self.client.write("?ZS\r");		// query zone 2 input
+}
+
+Pioneer.prototype.query3input = function() {
+    	var self = this;
+	self.client.write("?ZT\r");		// query zone 3 input
+}
+
+Pioneer.prototype.query4input = function() {
+    	var self = this;
+	self.client.write("?ZEA\r");		// query zone 4 input
+}
+
+// Begin Command Functions
 
 Pioneer.prototype.power = function(on) {
     	if (TRACE) {
@@ -65,6 +109,42 @@ Pioneer.prototype.power = function(on) {
     	}
     	else {
         this.client.write("PF\r");
+    }
+};
+
+Pioneer.prototype.power2zone = function(on) {
+    	if (TRACE) {
+        	console.log("AVR: turning zone 2 power: " + on);
+    	}
+    	if (on) {				// Send this twice per manual.
+        	this.client.write("APO\r");
+    	}
+    	else {
+        this.client.write("APF\r");
+    }
+};
+
+Pioneer.prototype.power3zone = function(on) {
+    	if (TRACE) {
+        	console.log("AVR: turning zone 3 power: " + on);
+    	}
+    	if (on) {				// Send this twice per manual.
+        	this.client.write("BPO\r");
+    	}
+    	else {
+        this.client.write("BPF\r");
+    }
+};
+
+Pioneer.prototype.power4zone = function(on) {
+    	if (TRACE) {
+        	console.log("AVR: turning zone 4 power: " + on);
+    	}
+    	if (on) {				// Send this twice per manual.
+        	this.client.write("ZEO\r");
+    	}
+    	else {
+        this.client.write("ZEF\r");
     }
 };
 
@@ -80,11 +160,49 @@ Pioneer.prototype.mute = function(on) {
 	}
 };
 
+Pioneer.prototype.mute2zone = function(on) {
+    	if (TRACE) {
+        	console.log("AVR: turning zone 2 mute: " + on);
+    	}
+    	if (on) {
+        	this.client.write("Z2MO\r");
+    	}
+	else {
+        	this.client.write("Z2MF\r");
+	}
+};
+
+Pioneer.prototype.mute3zone = function(on) {
+    	if (TRACE) {
+        	console.log("AVR: turning mute: " + on);
+    	}
+    	if (on) {
+        	this.client.write("Z3MO\r");
+    	}
+	else {
+        	this.client.write("Z3MF\r");
+	}
+};
+
 Pioneer.prototype.muteToggle = function() {
 	if (TRACE) {
 		console.log("AVR: toggling mute");
 	}
 	this.client.write("MZ\r");
+};
+
+Pioneer.prototype.mute2Toggle = function() {
+	if (TRACE) {
+		console.log("AVR: toggling mute");
+	}
+	this.client.write("Z2MZ\r");
+};
+
+Pioneer.prototype.mute3Toggle = function() {
+	if (TRACE) {
+		console.log("AVR: toggling mute");
+	}
+	this.client.write("Z3MZ\r");
 };
 
 Pioneer.prototype.volume = function(level) {
@@ -94,10 +212,27 @@ Pioneer.prototype.volume = function(level) {
 	val = Math.round((level/100) * MAXVOL);
 	
 	var level = val.toString()
-	if (TRACE) {
-        	console.log("setting volume level: " + level);
-	}
 	this.client.write(pad(level,3) + "VL\r");
+};
+
+Pioneer.prototype.volume2zone = function(level) {
+	if (TRACE) {
+		console.log("setting zone 3 volume: " + level + "%");
+	}
+	val = Math.round((level/100) * 81);
+	
+	var level = val.toString()
+	this.client.write(pad(level,3) + "ZV\r");
+};
+
+Pioneer.prototype.volume3zone = function(level) {
+	if (TRACE) {
+		console.log("setting zone 3 volume: " + level + "%");
+	}
+	val = Math.round((level/100) * 81);
+	
+	var level = val.toString()
+	this.client.write(pad(level,3) + "YV\r");
 };
 
 Pioneer.prototype.volumeUp = function(times) {
@@ -117,6 +252,18 @@ Pioneer.prototype.selectInput = function(input) {
 	this.client.write(pad(input,2) + "FN\r");
 };
 
+Pioneer.prototype.selectInput2zone = function(input) {
+	this.client.write(pad(input,2) + "ZS\r");
+};
+
+Pioneer.prototype.selectInput3zone = function(input) {
+	this.client.write(pad(input,2) + "ZT\r");
+};
+
+Pioneer.prototype.selectInput4zone = function(input) {
+	this.client.write(pad(input,2) + "ZEA\r");
+};
+
 Pioneer.prototype.queryInputName = function(inputId) {
 	this.client.write("?RGB" + inputId + "\r");
 }
@@ -132,6 +279,32 @@ Pioneer.prototype.queryaudioMode = function(mode) {
 Pioneer.prototype.queryVolume = function(mode) {
 	this.client.write("?V\r");
 };
+
+Pioneer.prototype.queryVolume2zone = function(mode) {
+	this.client.write("?ZV\r");
+};
+
+Pioneer.prototype.queryVolume3zone = function(mode) {
+	this.client.write("?YV\r");
+};
+
+Pioneer.prototype.queryTuner = function(mode) {
+	this.client.write("?FR\r");
+};
+
+Pioneer.prototype.setTuner = function(frequency) {
+	array = frequency.split("")
+	if (TRACE) {
+		console.log("setting tuner to : " + array[0] + array[1] + array[2] + "." + array[3] + array[4] + "MHz");
+	}
+	this.client.write("TAC\r");
+	this.client.write(array[0] + "TP\r");
+	this.client.write(array[1] + "TP\r");
+	this.client.write(array[2] + "TP\r");
+	this.client.write(array[3] + "TP\r");
+	this.client.write(array[4] + "TP\r");
+};
+
 
 // On Connection refresh device status and setup timers to update on occasion.
 function handleConnection(self, socket) {
@@ -171,6 +344,28 @@ function handleData(self, d) {
         	}
       		self.emit("volume", val);
     	}
+    	else if (data.startsWith("ZV")) {   // zone 2 volume status
+        	var vol = data.substr(2, 3);
+        
+        	// translate to dB.
+        	var val = Math.round((parseInt(vol) * 100) / 81);
+        
+        	if (TRACE) {
+            		console.log("AVR: zone 2 volume " + val + "%");
+        	}
+      		self.emit("volumeZone2", val);
+    	}
+    	else if (data.startsWith("YV")) {   // zone 2 volume status
+        	var vol = data.substr(2, 3);
+        
+        	// translate to dB.
+        	var val = Math.round((parseInt(vol) * 100) / 81);
+        
+        	if (TRACE) {
+            		console.log("AVR: zone 3 volume " + val + "%");
+        	}
+      		self.emit("volumeZone3", val);
+    	}
     	else if (data.startsWith("MUT")) {   // mute status
         	var mute = data.endsWith("0");  // MUT0 = muted, MUT1 = not muted
         	if (TRACE) {
@@ -178,12 +373,40 @@ function handleData(self, d) {
         	}
 		self.emit("mute", mute);
     	}
+    	else if (data.startsWith("Z2MUT")) {   // Zone 2 mute status
+        	var mute = data.endsWith("0");  // MUT0 = muted, MUT1 = not muted
+        	if (TRACE) {
+            		console.log("AVR: zone 2 mute: " + mute);
+        	}
+		self.emit("muteZone2", mute);
+    	}
+    	else if (data.startsWith("Z3MUT")) {   // mute status
+        	var mute = data.endsWith("0");  // MUT0 = muted, MUT1 = not muted
+        	if (TRACE) {
+            		console.log("AVR: zone 3 mute: " + mute);
+        	}
+		self.emit("muteZone3", mute);
+    	}
     	else if (data.startsWith("FN")) {
         	input = data.substr(2, 2);
         	if (TRACE) {
             		console.log("AVR input: " + input + " : " + self.inputNames[input]);
         	}
         	self.emit("input", parseInt(input), self.inputNames[input]);
+    	}
+    	else if (data.startsWith("Z2F")) {
+        	input = data.substr(3, 2);
+        	if (TRACE) {
+            		console.log("AVR zone 2 input: " + input + " : " + self.inputNames[input]);
+        	}
+        	self.emit("inputZone2", parseInt(input), self.inputNames[input]);
+    	}
+    	else if (data.startsWith("Z3F")) {
+        	input = data.substr(3, 2);
+        	if (TRACE) {
+            		console.log("AVR zone 3 input: " + input + " : " + self.inputNames[input]);
+        	}
+        	self.emit("inputZone3", parseInt(input), self.inputNames[input]);
     	}
     	else if (data.startsWith("SSA")) {
          	if (TRACE && DETAIL) {
@@ -199,6 +422,13 @@ function handleData(self, d) {
          	if (TRACE && DETAIL) {
              		console.log("AVR BPR: " + data);
          	}
+    	}
+    	else if (data.startsWith("FR")) {					// Tuner Frequency
+        	input = data.substr(2);
+         	if (TRACE && DETAIL) {
+             		console.log("AVR FR: " + data);
+         	}
+		self.emit("frequency", input)
     	}
     	else if (data.startsWith("LM")) {       				// listening mode
         	var mode = data.substring(2);
