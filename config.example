@@ -17,13 +17,17 @@ var options = {
 	log: 		false			// Debug Logging
 };
 
-// Domoticz Switches - NAME : IDX ( 0 = Disabled)
+// Domoticz Switches - NAME : IDX ( false = Disabled)
 var switches = {
 	inputs		: 145,			// Input Selector Switch (Required)
 	modes		: 168,			// Mode Selector Switch (Required)
-	volume		: 0,			// Volume Dimmer
-	zone2		: 0,			// Zone2 Volume Dimmer
-	displayText	: 0,			// Front Display Text
+	volume		: false,		// Volume Dimmer
+	zone2		: false,		// Zone2 Volume Dimmer
+	z2volume	: false,		// Zone2 Volume Slider
+	zone3		: false,		// Zone3 Input Selector
+	zone4		: false,		// Zone4 Input Selector
+	tuner		: false,		// AM/FM Tune Selector
+	displayText	: false,		// Front Display Text
 	modeText	: 167,			// Audio Mode Text
 	lights		: 180,			// Lights to dim w/PowerMate
 };
@@ -51,9 +55,29 @@ var modes = {
 	70		: [ '0112', 'Extended Stereo'],
 };
 
+// Domoticz Zone2/3/4 Input Selector - LEVEL : [INPUT, NAME]
+var zoneInputs = {
+	0		: [ 0, 'Power Off' ],
+	10		: [ 15, 'Nexus Player' ],
+	20		: [ 02, 'FM Tuner' ],
+	30		: [ 41, 'Native Pandora' ],
+};
+
+// Domoticz Radio Tuner Selector - LEVEL : [FREQ, NAME]
+var radio = {
+	0		: [ 0, 'Power Off' ],
+	10		: [ '9010', 'NPR' ],		// 90.1
+	20		: [ '9330', 'KCTL' ],		// 93.3
+	30		: [ '10150', 'Jammin' ],	// 101.5
+	40		: [ '10670', 'KBPI' ],		// 106.7
+	50		: [ '10550', 'Jack' ],		// 105.5
+}
+
 module.exports = options
 module.exports = switches
 module.exports = inputs
 module.exports = modes
+module.exports = zoneInputs
+module.exports = radio
 
 // END CONFIG
