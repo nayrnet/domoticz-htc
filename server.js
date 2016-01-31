@@ -146,16 +146,24 @@ receiver.on('power', function(pwr) {
 	if (TRACE) { console.log("POWER: " + pwr) }
 	if (!pwr) {
 		domoticz.switch(switches['inputs'],0)
-		domoticz.switch(switches['volume'],0)
-		domoticz.switch(switches['modes'],0)
+		if (switches['modes']) { domoticz.switch(switches['modes'],0) }
+		if (switches['volume']) { domoticz.switch(switches['volume'],0) }
+		if (switches['zone2']) { domoticz.switch(switches['zone2'],0) }
+		if (switches['z2volume']) { domoticz.switch(switches['volume'],0) }
+		if (switches['zone3']) { domoticz.switch(switches['zone3'],0) }
+		if (switches['z3volume']) { domoticz.switch(switches['volume'],0) }
+		if (switches['zone4']) { domoticz.switch(switches['zone4'],0) }
+		if (switches['tuner']) { domoticz.switch(switches['tuner'],0) }
 		if (powermate) { powermate.setBrightness(0) }
 		if (powermate) { powermate.setPulseAsleep(true) }
+		POWER = false
 		domoticz.log("<HTC> Powering Down")
 		if (tv) { tv.power(0) }
 	} else {
 		domoticz.log("<HTC> Powering On.")
 		domoticz.switch(switches['volume'],255)
-		domoticz.switch(switches['modes'],10)
+		POWER = true
+		receiver.queryinput()
 		if (tv) { tv.power(1) }
 		if ((VOLUME) && (powermate)) {
 			powermate.setBrightness(VOLUME*2.55)
@@ -163,7 +171,6 @@ receiver.on('power', function(pwr) {
 			powermate.setBrightness(255)
 		}
 	}
-	POWER = pwr
 });
 
 // receiver: volume
