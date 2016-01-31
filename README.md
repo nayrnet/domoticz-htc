@@ -9,7 +9,8 @@ This program communicates with my tv via rs232 and with my audio receiver via TC
 
 > I have completely redone this project so its more portable and easier to adopt.
 
-## Install (presumes linux and working Domoticz):
+## Install:
+> presumes linux and working Domoticz
 * Install MQTT Broker (apt-get install mosquitto)
 * Configure MQTT Hardware in Domoticz (Setup -> Hardware -> Type: MQTT Client Gateway)
 * Create Dummy Hardware in Domoticz called "HTC"
