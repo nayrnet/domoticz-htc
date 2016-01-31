@@ -25,6 +25,7 @@ var switches = {
 	zone2		: false,		// Zone2 Volume Dimmer
 	z2volume	: false,		// Zone2 Volume Slider
 	zone3		: false,		// Zone3 Input Selector
+        z3volume        : false,                // Zone3 Volume Slider
 	zone4		: false,		// Zone4 Input Selector
 	tuner		: false,		// AM/FM Tune Selector
 	displayText	: false,		// Front Display Text
