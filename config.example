@@ -67,14 +67,14 @@ var zoneInputs = {
 
 // Domoticz Radio Tuner Selector - LEVEL : [FREQ, NAME]
 var radio = {
-	0		: [ 0, 'Power Off' ],
-	10		: [ '09010', 'NPR' ],		// 90.1
-	20		: [ '09330', 'KCTL' ],		// 93.3
-	30		: [ '10150', 'Jammin' ],	// 101.5
-	40		: [ '10670', 'KBPI' ],		// 106.7
-	50		: [ '10550', 'Jack' ],		// 105.5
+        0               : [ 0, 'Power Off' ],
+        10              : [ '09010', '90.1 NPR' ], 
+        20              : [ '09410', '94.1 KOA' ],      
+        30              : [ '09330', '93.3 KCTL' ], 
+        40              : [ '10150', '101.5 Jammin' ], 
+        50              : [ '10670', '106.7 KBPI' ], 
+        60              : [ '10550', '105.5 Jack' ], 
 }
-
 // END CONFIG
 
 module.exports = options
