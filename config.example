@@ -61,6 +61,7 @@ var zoneInputs = {
 	10		: [ 15, 'Nexus Player' ],
 	20		: [ 02, 'FM Tuner' ],
 	30		: [ 41, 'Native Pandora' ],
+	40		: [ 44, 'AirPlay' ],
 };
 
 // Domoticz Radio Tuner Selector - LEVEL : [FREQ, NAME]
