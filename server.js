@@ -63,6 +63,11 @@ receiver.on("connect", function() {
                 receiver.queryaudioMode()
                 receiver.queryVolume()
         }, 3000);
+
+	// Check power status every 15mins, make sure connection is still alive and we are in sync.
+	setInterval(function(){
+                receiver.querypower()
+	}, 900000);  
 });
 
 domoticz.on('connect', function() {
@@ -350,6 +355,7 @@ function downRight(delta) {
 	if (READY) {
 		READY = false
 		level = (LIGHTS + (Math.abs(delta)*2))
+		if(level< 10) level = 18
 		domoticz.switch(switches['lights'],level)
 		LIGHTS = level
 		commandTimer = setTimeout(function() {
