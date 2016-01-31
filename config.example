@@ -73,11 +73,11 @@ var radio = {
 	50		: [ '10550', 'Jack' ],		// 105.5
 }
 
+// END CONFIG
+
 module.exports = options
 module.exports = switches
 module.exports = inputs
 module.exports = modes
 module.exports = zoneInputs
 module.exports = radio
-
-// END CONFIG
