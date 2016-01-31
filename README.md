@@ -10,17 +10,18 @@ This program communicates with my tv via rs232 and with my audio receiver via TC
 > I have completely redone this project so its more portable and easier to adopt.
 
 ## Install:
-> presumes linux and working Domoticz
-* Install MQTT Broker (apt-get install mosquitto)
-* Configure MQTT Hardware in Domoticz (Setup -> Hardware -> Type: MQTT Client Gateway)
-* Create Dummy Hardware in Domoticz called "HTC"
-* Add Dummy Selector Switch: Inputs
-  * Configure Levels as Inputs (see screenshots)
-* Add Dummy Selector Switch: Modes
-  * Configure Levels as Modes (see screenshots)
-  * Repeat adding what ever switches you need, use Text Sensors for Display/Mode Display
-* Get Switch IDX from Domoticz and Configure HTC to match (Setup -> Devices -> Search)
+> presumes debian based linux and working domoticz, git, nodejs and npm.
 
+1. Install MQTT Broker (apt-get install mosquitto)
+2. Configure MQTT Hardware in Domoticz (Setup -> Hardware -> Type: MQTT Client Gateway)
+3. Create Dummy Hardware in Domoticz called "HTC"
+4. Add Dummy Selector Switch: Inputs
+  * Configure Levels as Inputs (see screenshots)
+5. Add Dummy Selector Switch: Modes
+  * Configure Levels as Modes (see screenshots)
+6. Repeat adding what ever switches you need, use Text Sensors for Display/Mode Display
+7. Get Switch IDX from Domoticz and Configure HTC to match (Setup -> Devices -> Search)
+  * Download and Configure with:
 ```bash
 git clone https://github.com/nayrnet/domoticz-htc.git htc
 cd htc
