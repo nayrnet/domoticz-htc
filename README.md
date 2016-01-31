@@ -30,7 +30,12 @@ git pull
 
 ### My Hardware:
 * Pioneer SC-1222-K
-  * Google Nexus Player
+  * AndroidTV -  Nexus Player w/Ethernet OTG
+    * Plex
+    * Netflix
+    * Pandora
+    * AndroidTV OSD Remote
+    * HDHomeRun CONNECT
   * Sony PlayStation 3
   * Sony PlayStation 4
   * Mini Super NVR (Display Only, no storage)
