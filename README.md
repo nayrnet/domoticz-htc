@@ -74,9 +74,12 @@ git pull
 * My PowerMate Starting point: https://github.com/mattwelch/sonospowermate/blob/master/sonospowermate.js
 
 ### Web Screenshot:
-Selector Switch:
+Basic Selector Switch:
 
 ![Domoticz Selector Switch](screenshots/screenshot-button.png)
+
+Multi Zone w/Tuner
+![Domoticz Zones](screenshots/screenshot-zones-tuner.png)
 
 #### TO-DO:
 * Volume Slider in Domoticz
