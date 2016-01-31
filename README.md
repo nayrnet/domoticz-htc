@@ -102,7 +102,6 @@ Multi Zone w/Tuner
 #### TO-DO:
 * Volume Slider in Domoticz
 * Add support for ZONE2/ZONE3/ZONE4
-* Add support for FM Tuner
 
 ### Pioneer Setup Prefrences:
 * 055SUC  - Set Power ON Level to 055
