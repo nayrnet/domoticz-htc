@@ -41,6 +41,7 @@ var inputs = {
 	20		: [ 04, 'PlayStation 3' ],
 	30		: [ 22, 'PlayStation 4' ],
 	40		: [ 24, 'Security Cameras' ],
+        50              : [ 02, 'FM Tuner' ],
 };
 
 
