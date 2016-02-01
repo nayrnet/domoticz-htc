@@ -27,16 +27,16 @@ if (options.powermate) {
 } else { var	powermate	= false; }
 
 // Add Switches to MQTT Data Event Gathering
-if (switches.inputs)	{ options.idx.push(switches.inputs) }
-if (switches.modes)	{ options.idx.push(switches.modes) }
-if (switches.volume)	{ options.idx.push(switches.volume) }
-if (switches.z2volume)	{ options.idx.push(switches.z2volume) }
-if (switches.z3volume)	{ options.idx.push(switches.z3volume) }
-if (switches.lights)	{ options.idx.push(switches.lights) }
-if (switches.zone2)	{ options.idx.push(switches.zone2) }
-if (switches.zone3)	{ options.idx.push(switches.zone3) }
-if (switches.zone4)	{ options.idx.push(switches.zone4) }
-if (switches.tuner)	{ options.idx.push(switches.tuner) }
+if (switches.inputs)	options.idx.push(switches.inputs);
+if (switches.modes)	options.idx.push(switches.modes);
+if (switches.volume)	options.idx.push(switches.volume);
+if (switches.z2volume)	options.idx.push(switches.z2volume);
+if (switches.z3volume)	options.idx.push(switches.z3volume);
+if (switches.lights)	options.idx.push(switches.lights);
+if (switches.zone2)	options.idx.push(switches.zone2);
+if (switches.zone3)	options.idx.push(switches.zone3);
+if (switches.zone4)	options.idx.push(switches.zone4);
+if (switches.tuner)	options.idx.push(switches.tuner);
 
 // Globals
 var	TRACE		= true;;
@@ -161,62 +161,62 @@ domoticz.on('data', function(data) {
 
 // receiver: power
 receiver.on('power', function(pwr) {
-	if (TRACE) { console.log("POWER: " + pwr) }
+	if (TRACE) 			console.log("POWER: " + pwr);
 	if (!pwr) {
 		POWER = false
-		domoticz.log("<HTC> Powering Down")
-		if (switches.inputs)	{ domoticz.switch(switches.inputs,0) }
-		if (switches.modes) 	{ domoticz.switch(switches.modes,0) }
-		if (switches.volume) 	{ domoticz.switch(switches.volume,0) }
-		if (switches.zone2)	{ domoticz.switch(switches.zone2,0) }
-		if (switches.z2volume) 	{ domoticz.switch(switches.volume,0) }
-		if (switches.zone3) 	{ domoticz.switch(switches.zone3,0) }
-		if (switches.z3volume) 	{ domoticz.switch(switches.volume,0) }
-		if (switches.zone4) 	{ domoticz.switch(switches.zone4,0) }
-		if (switches.tuner) 	{ domoticz.switch(switches.tuner,0) }
-		if (powermate) 		{ powermate.setBrightness(0) }
-		if (powermate) 		{ powermate.setPulseAsleep(true) }
-		if (tv) { tv.power(0) }
+		domoticz.log("<HTC> Home Theatre is powering down...")
+		if (switches.inputs)	domoticz.switch(switches.inputs,0);
+		if (switches.modes) 	domoticz.switch(switches.modes,0);
+		if (switches.volume) 	domoticz.switch(switches.volume,0);
+		if (switches.zone2)	domoticz.switch(switches.zone2,0);
+		if (switches.z2volume) 	domoticz.switch(switches.volume,0);
+		if (switches.zone3) 	domoticz.switch(switches.zone3,0);
+		if (switches.z3volume) 	domoticz.switch(switches.volume,0);
+		if (switches.zone4) 	domoticz.switch(switches.zone4,0);
+		if (switches.tuner) 	domoticz.switch(switches.tuner,0);
+		if (powermate) 		powermate.setBrightness(0);
+		if (powermate) 		powermate.setPulseAsleep(true);
+		if (tv)			tv.power(0);
 	} else {
-		domoticz.log("<HTC> Powering On.")
+		domoticz.log("<HTC> Home Theatre is powering up...")
 		POWER = true
 		//receiver.queryinput()
-		if (switches.volume) 	{ domoticz.switch(switches.volume,255) }
-		if (powermate) 		{ powermate.setBrightness(VOLUME*2.55) }
-		if (tv) 		{ tv.power(1) }
+		if (switches.volume) 	domoticz.switch(switches.volume,255);
+		if (powermate) 		powermate.setBrightness(VOLUME*2.55);
+		if (tv) 		tv.power(1);
 	}
 });
 
 // receiver: volume
 receiver.on('volume', function(val) {
-	if (TRACE) { console.log("VOLUME: " + val) }
+	if (TRACE) 			console.log("VOLUME: " + val);
+	if (tv) 			tv.volume(val);
+	if (powermate) 			powermate.setBrightness(val*2.55);
 	if ((switches.volume) && (VOLUME !== val) && (!WAIT)) {
 		domoticz.switch(switches.volume,parseInt(val))
 	}
-	if (tv) 	{ tv.volume(val) }
-	if (powermate) 	{ powermate.setBrightness(val*2.55) }
 	VOLUME=val
 });
 
 // receiver: mute
 receiver.on('mute', function(mute) {
-	if (TRACE) { console.log("MUTE: " + mute) }
+	if (TRACE) 			console.log("MUTE: " + mute);
 	if ((mute) && (!MUTE)) {
-		if (switches.volume) 	{ domoticz.switch(switches.volume,0) }
-		if (powermate) 		{ powermate.setPulseAwake(true) }
-		if (tv) 		{ tv.mute(1) }
+		if (switches.volume) 	domoticz.switch(switches.volume,0);
+		if (powermate) 		powermate.setPulseAwake(true);
+		if (tv) 		tv.mute(1);
 	} else if (MUTE) {
-		if (switches.volume) 	{ domoticz.switch(switches.volume,255) }
-		if (powermate) 		{ powermate.setPulseAwake(false) }
-		if (powermate) 		{ powermate.setBrightness(VOLUME*2.55) }
-		if (tv) 		{ tv.mute(0) }
+		if (switches.volume) 	domoticz.switch(switches.volume,255);
+		if (powermate) 		powermate.setPulseAwake(false);
+		if (powermate) 		powermate.setBrightness(VOLUME*2.55);
+		if (tv) 		tv.mute(0);
 	}
 	MUTE = mute
 });
 
 // receiver: input
 receiver.on('input', function(input,inputName) {
-	if (TRACE) { console.log("INPUT: " + input) }
+	if (TRACE) 			console.log("INPUT: " + input);
 	if (POWER) {
 		var i = Object.keys(inputs);
 		i.forEach(function(id){
@@ -231,12 +231,12 @@ receiver.on('input', function(input,inputName) {
 
 // receiver: listening modes
 receiver.on('listenMode', function(mode,modeName) {
-	if (switches.modeText)		{ domoticz.device(switches.modeText,0,modeName) }
+	if (switches.modeText)		domoticz.device(switches.modeText,0,modeName);
 });
 
 // receiver: display
 receiver.on('display', function(display) {
-	if (switches.displayText) 	{ domoticz.device(switches.displayText,0,display) }
+	if (switches.displayText) 	domoticz.device(switches.displayText,0,display);
 });
 
 // Begin PowerMate Calls
@@ -285,9 +285,9 @@ if (powermate) {
 function setInput(input) {
 	if (!POWER) {
 		receiver.power(1)
-		if (tv) 		{ tv.power(1) }
-		if (switches.volume)	{ domoticz.switch(switches.volume,255) }
-		if (switches.modes)	{ domoticz.switch(switches.modes,10) }
+		if (tv) 		tv.power(1);
+		if (switches.volume)	domoticz.switch(switches.volume,255);
+		if (switches.modes)	domoticz.switch(switches.modes,10);
 		if (powermate) { 
 			powermate.setPulseAwake(true)
 			setTimeout(function() {
@@ -316,7 +316,7 @@ function setInput(input) {
 // Turn up volume
 function right(delta) {
 	if (READY) {
-		if(TRACE) { console.log("VOLUME: " + delta) }
+		if (TRACE) 		console.log("VOLUME: " + delta);
 		READY = false
 		receiver.volumeUp(delta)
 		commandTimer = setTimeout(function() { READY = true; }, 100);
@@ -326,7 +326,7 @@ function right(delta) {
 // Turn down volume
 function left(delta) {
 	if (READY) {
-		if(TRACE) { console.log("VOLUME: " + delta) }
+		if (TRACE) 		console.log("VOLUME: " + delta);
 		READY = false
 		receiver.volumeDown(delta)
 		commandTimer = setTimeout(function() { READY = true; }, 100);
@@ -335,19 +335,19 @@ function left(delta) {
 
 // Toggle mute
 function singleClick() {
-	if(TRACE) { console.log('Single Click') }
+	if (TRACE)			console.log('PM: Single Click');
 	receiver.muteToggle();
 }
 
 // Return to Nexus
 function doubleClick() {
-	if(TRACE) { console.log('Double Click') }
+	if (TRACE)			console.log('PM: Double Click');
 	setInput(15)
 }
 
 // Power Off
 function longClick() {
-	if(TRACE) { console.log('Long Click') }
+	if (TRACE) 			console.log('PM: Long Click');
         receiver.power(false);
 	POWER=false
 }
@@ -358,11 +358,9 @@ function downRight(delta) {
 		READY = false
 		if ((options.ptz) && (INPUT === 24) && (POWER)) {		// Hijack Dimmer for PTZ on Camera Input
 		// TODO
-		}
-		if ((switches.tuner) && (INPUT === 02) && (POWER)) {		// Hijack Dimmer for FM Tuner Selector
+		} else if ((switches.tuner) && (INPUT === 02) && (POWER)) {	// Hijack Dimmer for FM Tuner Selector
 		// TODO
-		}
-		if (switches.lights) {
+		} else if (switches.lights) {
 			level = (LIGHTS + (Math.abs(delta)*2))
 			if(level< 10) level = 18
 			domoticz.switch(switches.lights,level)
@@ -378,11 +376,9 @@ function downLeft(delta) {
 		READY = false
 		if ((options.ptz) && (INPUT === 24) && (POWER)) {		// Hijack Dimmer for PTZ on Camera Input
 		// TODO
-		}
-		if ((switches.tuner) && (INPUT === 02) && (POWER)) {		// Hijack Dimmer for FM Tuner Selector
+		} else if ((switches.tuner) && (INPUT === 02) && (POWER)) {	// Hijack Dimmer for FM Tuner Selector
 		// TODO
-		}
-		if (switches.lights) {
+		} else if (switches.lights) {
 			level = (LIGHTS - (Math.abs(delta)*2))
 			if(level<10) level = 0
 			domoticz.switch(switches.lights,level)
@@ -404,6 +400,7 @@ if (powermate) {
 receiver.on('error', function(error) {
 	console.log("FATAL AVR ERROR: " + error)
 	domoticz.log("FATAL AVR ERROR: " + error)
+	if (powermate) { powermate.close() }
 	process.exit()
 });
 
