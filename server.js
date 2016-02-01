@@ -26,17 +26,17 @@ if (options.powermate) {
 	var 	powermate 	= new usbremote();
 } else { var	powermate	= false; }
 
-// Add Switches to MQTT Data Event
-options.idx.push(switches['inputs'])
-options.idx.push(switches['modes'])
-if (switches['volume']) { options.idx.push(switches['volume']) }
-if (switches['z2volume']) { options.idx.push(switches['volume']) }
-if (switches['z3volume']) { options.idx.push(switches['volume']) }
-if (switches['lights']) {  options.idx.push(switches['lights']) }
-if (switches['zone2']) {  options.idx.push(switches['zone2']) }
-if (switches['zone3']) {  options.idx.push(switches['zone3']) }
-if (switches['zone4']) {  options.idx.push(switches['zone4']) }
-if (switches['tuner']) {  options.idx.push(switches['tuner']) }
+// Add Switches to MQTT Data Event Gathering
+if (switches.inputs)	{ options.idx.push(switches.inputs) }
+if (switches.modes)	{ options.idx.push(switches.modes) }
+if (switches.volume)	{ options.idx.push(switches.volume) }
+if (switches.z2volume)	{ options.idx.push(switches.z2volume) }
+if (switches.z3volume)	{ options.idx.push(switches.z3volume) }
+if (switches.lights)	{ options.idx.push(switches.lights) }
+if (switches.zone2)	{ options.idx.push(switches.zone2) }
+if (switches.zone3)	{ options.idx.push(switches.zone3) }
+if (switches.zone4)	{ options.idx.push(switches.zone4) }
+if (switches.tuner)	{ options.idx.push(switches.tuner) }
 
 // Globals
 var	TRACE		= true;;
@@ -83,13 +83,13 @@ receiver.on("connect", function() {
 domoticz.on('connect', function() {
 	console.log("Domoticz MQTT: connected")
         domoticz.log('<HTC> Home Theatre Controller connected.')
-	domoticz.request(switches['lights'])
+	domoticz.request(switches.lights)
 });
 
 // domoticz: data
 domoticz.on('data', function(data) {
 	// Input Selector Switch
-	if (data.idx === switches['inputs']) {
+	if (data.idx === switches.inputs) {
 		level = parseInt(data.svalue1)
 		if ((level) && (inputs[level][0] !== INPUT)) {
 			if (TRACE) { console.log("DOMO: Input " + inputs[level][1]) }
@@ -104,7 +104,7 @@ domoticz.on('data', function(data) {
 		}
 	}
 	// Audio Mode Selector Switch
-	if (data.idx === switches['modes']) {
+	if (data.idx === switches.modes) {
 		level = parseInt(data.svalue1)
 		if ((modes[level]) && (modes[level][0] !== MODE)) {
 			if (TRACE) { console.log("DOMO: Audio Mode " + modes[level][1]) }
@@ -113,7 +113,7 @@ domoticz.on('data', function(data) {
 		}
 	}
 	// Volume Switch
-	if (data.idx === switches['volume']) {
+	if (data.idx === switches.volume) {
 		val = parseInt(data.svalue1) + 1
 		if ((val !== VOLUME) && (VOLUME) && (data.nvalue === 2)) {
 			if (TRACE) { console.log("DOMO: Volume " + val) }
@@ -135,7 +135,7 @@ domoticz.on('data', function(data) {
 		VOLUME = val
 	}
 	// Lights Dimmer
-	if (data.idx === switches['lights']){
+	if (data.idx === switches.lights){
 		LIGHTS2 = parseInt(data.svalue1)
 		clearTimeout(switchTimer)
 	        switchTimer = setTimeout(function() {
@@ -146,7 +146,7 @@ domoticz.on('data', function(data) {
 	        }, 15000);
 	}
 	// FM Tuner Selector Switch
-	if (data.idx === switches['tuner']) {
+	if (data.idx === switches.tuner) {
 		level = parseInt(data.svalue1)
 		if (radio[level]) {
 			if (TRACE) { console.log("DOMO: Tuner " + radio[level][1]) }
@@ -163,15 +163,15 @@ domoticz.on('data', function(data) {
 receiver.on('power', function(pwr) {
 	if (TRACE) { console.log("POWER: " + pwr) }
 	if (!pwr) {
-		domoticz.switch(switches['inputs'],0)
-		if (switches['modes']) { domoticz.switch(switches['modes'],0) }
-		if (switches['volume']) { domoticz.switch(switches['volume'],0) }
-		if (switches['zone2']) { domoticz.switch(switches['zone2'],0) }
-		if (switches['z2volume']) { domoticz.switch(switches['volume'],0) }
-		if (switches['zone3']) { domoticz.switch(switches['zone3'],0) }
-		if (switches['z3volume']) { domoticz.switch(switches['volume'],0) }
-		if (switches['zone4']) { domoticz.switch(switches['zone4'],0) }
-		if (switches['tuner']) { domoticz.switch(switches['tuner'],0) }
+		domoticz.switch(switches.inputs,0)
+		if (switches.modes) { domoticz.switch(switches.modes,0) }
+		if (switches.volume) { domoticz.switch(switches.volume,0) }
+		if (switches.zone2) { domoticz.switch(switches.zone2,0) }
+		if (switches.z2volume) { domoticz.switch(switches.volume,0) }
+		if (switches.zone3) { domoticz.switch(switches.zone3,0) }
+		if (switches.z3volume) { domoticz.switch(switches.volume,0) }
+		if (switches.zone4) { domoticz.switch(switches.zone4,0) }
+		if (switches.tuner) { domoticz.switch(switches.tuner,0) }
 		if (powermate) { powermate.setBrightness(0) }
 		if (powermate) { powermate.setPulseAsleep(true) }
 		POWER = false
@@ -179,7 +179,7 @@ receiver.on('power', function(pwr) {
 		if (tv) { tv.power(0) }
 	} else {
 		domoticz.log("<HTC> Powering On.")
-		if (switches['volume']) { domoticz.switch(switches['volume'],255) }
+		if (switches.volume) { domoticz.switch(switches.volume,255) }
 		POWER = true
 		receiver.queryinput()
 		if (tv) { tv.power(1) }
@@ -194,8 +194,8 @@ receiver.on('power', function(pwr) {
 // receiver: volume
 receiver.on('volume', function(val) {
 	if (TRACE) { console.log("VOLUME: " + val) }
-	if ((switches['volume']) && (VOLUME !== val) && (!WAIT)) {
-		domoticz.switch(switches['volume'],parseInt(val))
+	if ((switches.volume) && (VOLUME !== val) && (!WAIT)) {
+		domoticz.switch(switches.volume,parseInt(val))
 	}
 	if (tv) { tv.volume(val) }
 	if (powermate) { powermate.setBrightness(val*2.55) }
@@ -206,8 +206,8 @@ receiver.on('volume', function(val) {
 receiver.on('mute', function(mute) {
 	if (TRACE) { console.log("MUTE: " + mute) }
 	if ((mute) && (!MUTE)) {
-		if (switches['volume']) {
-			domoticz.switch(switches['volume'],0)
+		if (switches.volume) {
+			domoticz.switch(switches.volume,0)
 		}
 		if (tv) { tv.mute(1) }
 		if (powermate) { 
@@ -215,8 +215,8 @@ receiver.on('mute', function(mute) {
 			powermate.setPulseAwake(true)
 		}
 	} else if (MUTE) {
-		if (switches['volume']) {
-			domoticz.switch(switches['volume'],255)
+		if (switches.volume) {
+			domoticz.switch(switches.volume,255)
 		}
 		if (tv) { tv.mute(0) }
 		if (powermate) { 
@@ -234,7 +234,7 @@ receiver.on('input', function(input,inputName) {
 		var i = Object.keys(inputs);
 		i.forEach(function(id){
 			if (input === inputs[id][0]) {
-				domoticz.switch(switches['inputs'],id)
+				domoticz.switch(switches.inputs,id)
 				domoticz.log("<HTC> input changed to " + inputs[id][1])
 			}
 		});
@@ -244,15 +244,15 @@ receiver.on('input', function(input,inputName) {
 
 // receiver: listening modes
 receiver.on('listenMode', function(mode,modeName) {
-	if (switches['modeText']) {
-		domoticz.device(switches['modeText'],0,modeName)
+	if (switches.modeText) {
+		domoticz.device(switches.modeText,0,modeName)
 	}
 });
 
 // receiver: display
 receiver.on('display', function(display) {
-	if (switches['displayText']) {
-		domoticz.device(switches['displayText'],0,display)
+	if (switches.displayText) {
+		domoticz.device(switches.displayText,0,display)
 	}
 });
 
@@ -303,8 +303,8 @@ function setInput(input) {
 	if (!POWER) {
 		if (tv) { tv.power(1) }
 		receiver.power(1)
-		domoticz.switch(switches['volume'],255)
-		domoticz.switch(switches['modes'],10)
+		domoticz.switch(switches.volume,255)
+		domoticz.switch(switches.modes,10)
 		if (powermate) { 
 			powermate.setPulseAwake(true)
 			setTimeout(function() {
@@ -375,13 +375,20 @@ function longClick() {
 	POWER=false
 }
 
-// Light Dimmer
+// Dimmer/Tuner Function
 function downRight(delta) {
 	if (READY) {
+		if ((options.ptz) && (INPUT === 24) && (POWER)) {		// Hijack Dimmer for PTZ on Camera Input
+
+		}
+		if ((options.ptz) && (INPUT === 24) && (POWER)) {		// Hijack Dimmer for PTZ on Camera Input
+
+		}
 		READY = false
 		level = (LIGHTS + (Math.abs(delta)*2))
 		if(level< 10) level = 18
-		domoticz.switch(switches['lights'],level)
+		console.log(switches.lights)
+		domoticz.switch(switches.lights,level)
 		LIGHTS = level
 		commandTimer = setTimeout(function() {
 			READY = true;
@@ -395,7 +402,7 @@ function downLeft(delta) {
 		READY = false
 		level = (LIGHTS - (Math.abs(delta)*2))
 		if(level<10) level = 0
-		domoticz.switch(switches['lights'],level)
+		domoticz.switch(switches.lights,level)
 		LIGHTS = level
 		commandTimer = setTimeout(function() {
 			READY = true;
