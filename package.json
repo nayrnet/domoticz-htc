@@ -4,16 +4,13 @@
   "description": "Domoticz Home Theatre Controller",
   "main": "server.js",
   "dependencies": {
-    "crypto": "^0.0.3",
     "mqtt": "^1.6.3",
     "events": "^1.1.0",
     "node-domoticz-mqtt": "^1.1.5",
     "daemonize2": "^0.4.2",
     "serialport": "^2.0.6",
-    "node-powermate": "^0.0.3",
     "util": "^0.10.3",
     "request": "^2.67.0",
-    "help": "^2.1.2",
     "net": "^1.0.2"
   },
   "devDependencies": {},
