@@ -39,7 +39,7 @@ if (switches['zone4']) {  options.idx.push(switches['zone4']) }
 if (switches['tuner']) {  options.idx.push(switches['tuner']) }
 
 // Globals
-var	TRACE		= options.log;
+var	TRACE		= true;;
 var	POWER		= false;
 var	MUTE		= false;
 var	INPUT		= false;
@@ -50,6 +50,7 @@ var	DOWN		= false;
 var	READY		= true;
 var	LIGHTS		= false;
 var	LIGHTS2		= false;
+var	FREQUENCY	= false;
 
 var	switchTimer;
 var	dblClickTimer;
@@ -75,6 +76,7 @@ receiver.on("connect", function() {
 	// Check power status every 15mins, make sure connection is still alive and we are in sync.
 	setInterval(function(){
                 receiver.querypower()
+                receiver.queryinput()
 	}, 900000);  
 });
 
@@ -177,7 +179,7 @@ receiver.on('power', function(pwr) {
 		if (tv) { tv.power(0) }
 	} else {
 		domoticz.log("<HTC> Powering On.")
-		domoticz.switch(switches['volume'],255)
+		if (switches['volume']) { domoticz.switch(switches['volume'],255) }
 		POWER = true
 		receiver.queryinput()
 		if (tv) { tv.power(1) }
@@ -259,8 +261,8 @@ if (powermate) {
 	// powermate: buttonDown
 	powermate.on('buttonDown', function() {
 		DOWN = true;
-		// If we hold the button down for more than 2 seconds, let's call it a long press....
-		pressTimer = setTimeout(longClick, 2000);
+		// If we hold the button down for more than 1 seconds, let's call it a long press....
+		pressTimer = setTimeout(longClick, 1000);
 	});
 
 	// powermate: buttonUp
@@ -316,7 +318,7 @@ function setInput(input) {
 			receiver.mute(0)
 		}
 		receiver.selectInput(input)
-		receiver.volume(33)
+		receiver.volume(45)
 		if (powermate) { 
 			powermate.setPulseAwake(true)
 			setTimeout(function() {

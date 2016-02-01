@@ -293,6 +293,10 @@ Pioneer.prototype.queryTuner = function(mode) {
 };
 
 Pioneer.prototype.setTuner = function(frequency) {
+	if (frequency.length !== 5) { 
+		if (TRACE) { console.log("invalid frequency: " + frequency) }
+		return false
+	}
 	array = frequency.split("")
 	if (TRACE) {
 		console.log("setting tuner to : " + array[0] + array[1] + array[2] + "." + array[3] + array[4] + "MHz");
