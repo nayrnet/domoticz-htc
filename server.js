@@ -230,7 +230,7 @@ receiver.on('mute', function(mute) {
 // receiver: input
 receiver.on('input', function(input,inputName) {
 	if (TRACE) { console.log("INPUT: " + input) }
-	if ((parseInt(input) !== INPUT) && (POWER)) {
+	if (POWER) {
 		var i = Object.keys(inputs);
 		i.forEach(function(id){
 			if (input === inputs[id][0]) {
@@ -419,8 +419,7 @@ receiver.on('error', function(error) {
 
 // domoticz: error
 domoticz.on('error', function(error) {
-	console.log("FATAL MQTT ERROR: " + error)
-	process.exit()
+	console.log("MQTT ERROR: " + error)
 });
 
 // OnExit
