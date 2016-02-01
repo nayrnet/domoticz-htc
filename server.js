@@ -207,8 +207,8 @@ receiver.on('mute', function(mute) {
 		if (tv) 		{ tv.mute(1) }
 	} else if (MUTE) {
 		if (switches.volume) 	{ domoticz.switch(switches.volume,255) }
-		if (powermate) { powermate.setPulseAwake(false) }
-		if (powermate) { powermate.setBrightness(VOLUME*2.55) }
+		if (powermate) 		{ powermate.setPulseAwake(false) }
+		if (powermate) 		{ powermate.setBrightness(VOLUME*2.55) }
 		if (tv) 		{ tv.mute(0) }
 	}
 	MUTE = mute
