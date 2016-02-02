@@ -337,6 +337,30 @@ function handleData(self, d) {
 		pow = pwr;
         	self.emit("power", pwr);
     	}
+    	if (data.startsWith("APR")) {        // power status
+        	var pwr = (data == "APR0");   // PWR0 = on, PWR1 = off
+        	if (TRACE) {
+            		console.log("AVR: zone2 power" + pwr);
+        	}
+		pow = pwr;
+        	self.emit("powerZone2", pwr);
+    	}
+    	if (data.startsWith("BPR")) {        // power status
+        	var pwr = (data == "BPR0");   // PWR0 = on, PWR1 = off
+        	if (TRACE) {
+            		console.log("AVR: zone3 power" + pwr);
+        	}
+		pow = pwr;
+        	self.emit("powerZone3", pwr);
+    	}
+    	if (data.startsWith("ZEP")) {        // power status
+        	var pwr = (data == "ZEP0");   // PWR0 = on, PWR1 = off
+        	if (TRACE) {
+            		console.log("AVR: zone4 power" + pwr);
+        	}
+		pow = pwr;
+        	self.emit("powerZone4", pwr);
+    	}
     	else if (data.startsWith("VOL")) {   // volume status
         	var vol = data.substr(3, 3);
         

@@ -45,8 +45,10 @@ if (switches.tuner)	options.idx.push(switches.tuner);
 // Globals
 var	TRACE		= true;;
 var	POWER		= false;
+var	Z2POWER		= false;
 var	MUTE		= false;
 var	INPUT		= false;
+var	Z2INPUT		= false;
 var	MODE		= false;
 var	VOLUME		= false;
 var	WAIT		= false;
@@ -155,6 +157,18 @@ domoticz.on('data', function(data) {
 			receiver.setTuner(radio[level][0])
 		}
 	}
+	// Zone 2 Input Selector Switch
+	if (data.idx === switches.zone2) {
+		level = parseInt(data.svalue1)
+		if ((zoneInputs[level]) && (zoneInputs[level][0] !== Z2INPUT)) {
+			if (TRACE) { console.log("DOMO: Zone 2 " + zoneInputs[level][1]) }
+			if (!Z2POWER) receiver.power2zone(true);
+			receiver.selectInput2zone(zoneInputs[level][0])
+		} else if (Z2POWER) {
+			receiver.power2zone(false)
+			domoticz.switch(zone2,0)
+		}
+	}
 	if (TRACE) {
 	        message = JSON.stringify(data)
 	        console.log("DOMO: " + message.toString())
@@ -183,10 +197,29 @@ receiver.on('power', function(pwr) {
 		POWER = true
 		//receiver.queryinput()
 		if (switches.volume) 	domoticz.switch(receiver.queryVolume);
+		if (switches.zone2)	receiver.query2power();
+		if (switches.zone3)	receiver.query3power();;
+		if (switches.zone4)	receiver.query4power();;
 		if (powermate) 		powermate.setBrightness(VOLUME*2.55);
 		if (tv) 		tv.power(1);
 	}
 });
+
+// receiver: power zone 2
+receiver.on('powerZone2', function(pwr) {
+	Z2POWER = pwr
+	if (TRACE) 			console.log("POWER Z2: " + pwr);
+	if (!pwr) {
+		domoticz.log("<HTC> Zone 2 Power Down...")
+		if (switches.zone2)	domoticz.switch(switches.zone2,0);
+		if (switches.z2volume) 	domoticz.switch(switches.z2volume,0);
+	} else {
+		domoticz.log("<HTC> Zone 2 Power Up...")
+		if (switches.zone2)	receiver.query2input();
+		if (switches.z2volume) 	receiver.queryVolume2zone();
+	}
+});
+
 
 // receiver: volume
 receiver.on('volume', function(val) {
@@ -228,6 +261,21 @@ receiver.on('input', function(input,inputName) {
 		});
 	}
 	INPUT = parseInt(input)
+});
+
+// receiver: input zone 2
+receiver.on('inputZone2', function(input,inputName) {
+	if (TRACE) 			console.log("INPUT Z2: " + input);
+	if (POWER) {
+		var i = Object.keys(inputs);
+		i.forEach(function(id){
+			if (input === zoneInputs[id][0]) {
+				domoticz.switch(switches.zone2,id)
+				domoticz.log("<HTC> Zone2 input changed to " + zoneInputs[id][1])
+			}
+		});
+	}
+	Z2INPUT = parseInt(input)
 });
 
 // receiver: listening modes
