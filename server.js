@@ -166,7 +166,7 @@ domoticz.on('data', function(data) {
 			receiver.selectInput2zone(zoneInputs[level][0])
 		} else if (Z2POWER) {
 			receiver.power2zone(false)
-			domoticz.switch(zone2,0)
+			domoticz.switch(switches.zone2,0)
 		}
 	}
 	if (TRACE) {
@@ -250,6 +250,7 @@ receiver.on('mute', function(mute) {
 
 // receiver: input
 receiver.on('input', function(input,inputName) {
+	INPUT = parseInt(input)
 	if (TRACE) 			console.log("INPUT: " + input);
 	if (POWER) {
 		var i = Object.keys(inputs);
@@ -260,11 +261,11 @@ receiver.on('input', function(input,inputName) {
 			}
 		});
 	}
-	INPUT = parseInt(input)
 });
 
 // receiver: input zone 2
 receiver.on('inputZone2', function(input,inputName) {
+	Z2INPUT = parseInt(input)
 	if (TRACE) 			console.log("INPUT Z2: " + input);
 	if (POWER) {
 		var i = Object.keys(zoneInputs);
@@ -275,7 +276,6 @@ receiver.on('inputZone2', function(input,inputName) {
 			}
 		});
 	}
-	Z2INPUT = parseInt(input)
 });
 
 // receiver: listening modes
