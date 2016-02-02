@@ -97,15 +97,13 @@ domoticz.on('data', function(data) {
 		level = parseInt(data.svalue1)
 		if ((level) && (inputs[level][0] !== INPUT)) {
 			if (TRACE) { console.log("DOMO: Input " + inputs[level][1]) }
+			INPUT=inputs[level][0]
 			setInput(inputs[level][0])
 		} else if ((!level) && (POWER)) {
 			if (TRACE) { console.log("DOMO: Power Off") }
 			receiver.power(0)
 			if (tv) { tv.power(0) }
-		} else if ((!POWER) && (level)) {
-			receiver.power(1)
-			if (tv) { tv.power(1) }
-		}
+		} 
 	}
 	// Audio Mode Selector Switch
 	if (data.idx === switches.modes) {
@@ -186,6 +184,8 @@ receiver.on('power', function(pwr) {
 		POWER = true
 		//receiver.queryinput()
 		if (switches.volume) 	domoticz.switch(switches.volume,255);
+		if (switches.volume) 	domoticz.switch(receiver.queryVolume);
+		if (switches.mode) 	domoticz.switch(switches.mode,255);
 		if (powermate) 		powermate.setBrightness(VOLUME*2.55);
 		if (tv) 		tv.power(1);
 	}
@@ -290,10 +290,8 @@ function setInput(input) {
 	if (!POWER) {
 		receiver.power(1)
 		if (tv) 		tv.power(1);
-		if (switches.volume)	domoticz.switch(switches.volume,255);
-		if (switches.modes)	domoticz.switch(switches.modes,255);
 		receiver.volume(45)
-		receiver.selectInput(input)
+		setTimeout(function() { receiver.selectInput(input) }, 2500);
 		if (powermate) { 
 			powermate.setPulseAwake(true)
 			setTimeout(function() {
@@ -301,7 +299,7 @@ function setInput(input) {
                 	        powermate.setBrightness(VOLUME*2.55)
 			}, 10000);
 		}
-	} else if (input !== INPUT) {
+	} else {
 		if (MUTE) 		receiver.mute(0)
 		receiver.volume(45)
 		receiver.selectInput(input)
@@ -313,8 +311,8 @@ function setInput(input) {
 			}, 5000);
 		}
 	} 
-	//INPUT = input
-	receiver.queryinput()
+	INPUT = input
+	//receiver.queryinput()
 }
 
 // Gessture Functions
@@ -324,8 +322,8 @@ function right(delta) {
 	if (READY) {
 		if (TRACE) 		console.log("VOLUME: " + delta);
 		READY = false
-		receiver.volumeUp(delta)
-		commandTimer = setTimeout(function() { READY = true; }, 100);
+		receiver.volumeUp(3)
+		commandTimer = setTimeout(function() { READY = true; }, 175);
 	}
 }
 
@@ -334,8 +332,8 @@ function left(delta) {
 	if (READY) {
 		if (TRACE) 		console.log("VOLUME: " + delta);
 		READY = false
-		receiver.volumeDown(delta)
-		commandTimer = setTimeout(function() { READY = true; }, 100);
+		receiver.volumeDown(3)
+		commandTimer = setTimeout(function() { READY = true; }, 175);
 	}
 }
 
@@ -348,7 +346,7 @@ function singleClick() {
 // Return to Nexus
 function doubleClick() {
 	if (TRACE)			console.log('PM: Double Click');
-	INPUT=false			// Reset Input to force change
+	INPUT=false
 	setInput(15)
 }
 
@@ -364,10 +362,12 @@ function downRight(delta) {
 	if (READY) {
 		READY = false
 		if ((options.ptz) && (INPUT === 24) && (POWER)) {		// Hijack Dimmer for PTZ on Camera Input
-		// TODO
+			console.log("PTZ Debug")
+			commandTimer = setTimeout(function() { READY = true; }, 1000);
 		} else if ((switches.tuner) && (INPUT === 02) && (POWER)) {	// Hijack Dimmer for FM Tuner Selector
-		// TODO
-		} else if (switches.lights) {
+			console.log("Tuner Debug")
+			commandTimer = setTimeout(function() { READY = true; }, 1000);
+		} else {
 			level = (LIGHTS + (Math.abs(delta)*2))
 			if(level< 10) level = 18
 			domoticz.switch(switches.lights,level)
@@ -382,10 +382,12 @@ function downLeft(delta) {
 	if (READY) {
 		READY = false
 		if ((options.ptz) && (INPUT === 24) && (POWER)) {		// Hijack Dimmer for PTZ on Camera Input
-		// TODO
+			console.log("PTZ Debug")
+			READY = true
 		} else if ((switches.tuner) && (INPUT === 02) && (POWER)) {	// Hijack Dimmer for FM Tuner Selector
-		// TODO
-		} else if (switches.lights) {
+			console.log("Tuner Debug")
+			READY = true
+		} else {
 			level = (LIGHTS - (Math.abs(delta)*2))
 			if(level<10) level = 0
 			domoticz.switch(switches.lights,level)
@@ -418,7 +420,7 @@ domoticz.on('error', function(error) {
 
 // powermate: error
 if (powermate) {
-	powermate.on('error', function(error) {
+	powermate.on('Error', function(error) {
 		console.log("PM ERROR: " + error)
 	});
 }
