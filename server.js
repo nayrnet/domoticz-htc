@@ -16,6 +16,10 @@ var	mqtt            = require('node-domoticz-mqtt');
 var	receiver 	= new avr.Pioneer(options);
 var 	domoticz 	= new mqtt.domoticz(options);
 
+if (options.syslog)	{
+	var 	SysLogger 	= require('ain2');
+	var	console		= new SysLogger({tag: 'htc', facility: 'daemon'});
+}
 if (options.sharptv) {
 	var	television	= require('./hardware/sharptv.js');
 	var	tv 		= new television.SharpTV(options);
@@ -411,6 +415,13 @@ receiver.on('error', function(error) {
 domoticz.on('error', function(error) {
 	console.log("MQTT ERROR: " + error)
 });
+
+// powermate: error
+if (powermate) {
+	powermate.on('error', function(error) {
+		console.log("PM ERROR: " + error)
+	});
+}
 
 // OnExit
 process.on( "SIGINT", function() {

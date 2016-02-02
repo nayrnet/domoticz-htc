@@ -14,7 +14,8 @@ var options = {
 	idx		: [ ],			// Init IDX Array
 	request		: false,		// Required for MQTT
         status		: 'htc/connected',	// MQTT Status Path
-	log		: false			// Debug Logging
+	syslog		: false			// Log to Syslog
+	log		: false			// Extra Debug Logging
 };
 
 // Domoticz Switches - NAME : IDX (false = Disabled)
