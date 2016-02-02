@@ -365,7 +365,7 @@ function setInput(input) {
 // Turn up volume
 function right(delta) {
 	if (READY) {
-		//if (TRACE) 		console.log("VOLUME: " + delta);
+		//if (TRACE) 		console.log("PM Right: " + delta);
 		READY = false
 		receiver.volumeUp(3)
 		commandTimer = setTimeout(function() { READY = true; }, 175);
@@ -375,7 +375,7 @@ function right(delta) {
 // Turn down volume
 function left(delta) {
 	if (READY) {
-		//if (TRACE) 		console.log("VOLUME: " + delta);
+		//if (TRACE) 		console.log("PM Left: " + delta);
 		READY = false
 		receiver.volumeDown(3)
 		commandTimer = setTimeout(function() { READY = true; }, 175);
