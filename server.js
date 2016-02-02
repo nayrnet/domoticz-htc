@@ -168,12 +168,11 @@ receiver.on('power', function(pwr) {
 		POWER = false
 		domoticz.log("<HTC> Home Theatre is powering down...")
 		if (switches.inputs)	domoticz.switch(switches.inputs,0);
-		if (switches.modes) 	domoticz.switch(switches.modes,0);
 		if (switches.volume) 	domoticz.switch(switches.volume,0);
 		if (switches.zone2)	domoticz.switch(switches.zone2,0);
-		if (switches.z2volume) 	domoticz.switch(switches.volume,0);
+		if (switches.z2volume) 	domoticz.switch(switches.z2volume,0);
 		if (switches.zone3) 	domoticz.switch(switches.zone3,0);
-		if (switches.z3volume) 	domoticz.switch(switches.volume,0);
+		if (switches.z3volume) 	domoticz.switch(switches.z3volume,0);
 		if (switches.zone4) 	domoticz.switch(switches.zone4,0);
 		if (switches.tuner) 	domoticz.switch(switches.tuner,0);
 		if (powermate) 		powermate.setBrightness(0);
@@ -183,9 +182,7 @@ receiver.on('power', function(pwr) {
 		domoticz.log("<HTC> Home Theatre is powering up...")
 		POWER = true
 		//receiver.queryinput()
-		if (switches.volume) 	domoticz.switch(switches.volume,255);
 		if (switches.volume) 	domoticz.switch(receiver.queryVolume);
-		if (switches.mode) 	domoticz.switch(switches.mode,255);
 		if (powermate) 		powermate.setBrightness(VOLUME*2.55);
 		if (tv) 		tv.power(1);
 	}
