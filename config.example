@@ -46,7 +46,6 @@ var inputs = {
         50              : [ 02, 'FM Tuner' ],
 };
 
-
 // Domoticz Audio Mode Selector - LEVEL : [MODE, NAME]
 var modes = {
 	10		: [ '0006', 'Auto Surround' ],
