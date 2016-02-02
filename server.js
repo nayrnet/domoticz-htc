@@ -289,7 +289,7 @@ function setInput(input) {
 		if (switches.volume)	domoticz.switch(switches.volume,255);
 		if (switches.modes)	domoticz.switch(switches.modes,255);
 		receiver.volume(45)
-		receiver.input(input)
+		receiver.selectInput(input)
 		if (powermate) { 
 			powermate.setPulseAwake(true)
 			setTimeout(function() {
@@ -300,7 +300,7 @@ function setInput(input) {
 	} else if (input !== INPUT) {
 		if (MUTE) 		receiver.mute(0)
 		receiver.volume(45)
-		receiver.input(input)
+		receiver.selectInput(input)
 		if (powermate) { 
 			powermate.setPulseAwake(true)
 			setTimeout(function() {
