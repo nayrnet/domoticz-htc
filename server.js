@@ -73,11 +73,11 @@ receiver.on("connect", function() {
                 receiver.queryVolume()
         }, 3000);
 
-	// Check power status every 15mins, make sure connection is still alive and we are in sync.
+	// Query status every 5 mins, make sure connection is still alive and we are in sync.
 	setInterval(function(){
                 receiver.querypower()
                 receiver.queryinput()
-	}, 900000);  
+	}, 300000);  
 });
 
 domoticz.on('connect', function() {
@@ -287,7 +287,9 @@ function setInput(input) {
 		receiver.power(1)
 		if (tv) 		tv.power(1);
 		if (switches.volume)	domoticz.switch(switches.volume,255);
-		if (switches.modes)	domoticz.switch(switches.modes,10);
+		if (switches.modes)	domoticz.switch(switches.modes,255);
+		receiver.volume(45)
+		receiver.input(input)
 		if (powermate) { 
 			powermate.setPulseAwake(true)
 			setTimeout(function() {
@@ -295,11 +297,10 @@ function setInput(input) {
                 	        powermate.setBrightness(VOLUME*2.55)
 			}, 10000);
 		}
-	}
-	if (input !== INPUT) {
-		if (MUTE) 	{ receiver.mute(0) }
-		receiver.selectInput(input)
+	} else if (input !== INPUT) {
+		if (MUTE) 		receiver.mute(0)
 		receiver.volume(45)
+		receiver.input(input)
 		if (powermate) { 
 			powermate.setPulseAwake(true)
 			setTimeout(function() {
@@ -308,7 +309,8 @@ function setInput(input) {
 			}, 5000);
 		}
 	} 
-	INPUT = input
+	//INPUT = input
+	receiver.queryinput()
 }
 
 // Gessture Functions
@@ -342,6 +344,7 @@ function singleClick() {
 // Return to Nexus
 function doubleClick() {
 	if (TRACE)			console.log('PM: Double Click');
+	INPUT=false			// Reset Input to force change
 	setInput(15)
 }
 
