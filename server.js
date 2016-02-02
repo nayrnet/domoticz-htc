@@ -455,7 +455,9 @@ receiver.on('error', function(error) {
 	console.log("FATAL AVR ERROR: " + error)
 	domoticz.log("FATAL AVR ERROR: " + error)
 	if (powermate) { powermate.close() }
-	process.exit()
+        setTimeout(function() {
+		process.exit()
+        }, 500);
 });
 
 // domoticz: error
@@ -465,12 +467,18 @@ domoticz.on('error', function(error) {
 
 // powermate: error
 if (powermate) {
-	powermate.on('Error', function(error) {
+	powermate.on('error', function(error) {
 		console.log("PM ERROR: " + error)
 	});
 }
 
-// OnExit
+// htc: uncaught error
+process.on('uncaughtException', function(err) {
+	// handle the error safely
+	console.log("ERROR: " + err)
+});
+
+// htc: OnExit
 process.on( "SIGINT", function() {
 	if (powermate) { powermate.close() }
         setTimeout(function() {
