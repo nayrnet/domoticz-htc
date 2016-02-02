@@ -267,7 +267,7 @@ receiver.on('input', function(input,inputName) {
 receiver.on('inputZone2', function(input,inputName) {
 	if (TRACE) 			console.log("INPUT Z2: " + input);
 	if (POWER) {
-		var i = Object.keys(inputs);
+		var i = Object.keys(zoneInputs);
 		i.forEach(function(id){
 			if (input === zoneInputs[id][0]) {
 				domoticz.switch(switches.zone2,id)
