@@ -9,6 +9,18 @@ This program communicates with my tv via rs232 and with my audio receiver via TC
 
 > I have completely redone this project so its more portable and easier to adopt.
 
+## Remote Controll Features via Domoticz:
+* Power/Input Selector: React to and Change Audio/Video Sources
+  * Multi-Zone Support: Select different inputs for different sources.
+* Mute/Volume Slider: React to and change volume output.
+  * Multi-Zone Support: Controll each Zone's Volume independently.
+* Listening Mode Selector: Change audio proccessors on the fly (Surround/Direct/Stereo/ProLogic/Extended/etc)
+* FM Tune Selector: Change the FM Frequency on the Radio Tuner.
+* Display Text: Monitor the display on your Pioneer Remotely.
+* Audio Mode Text: Monitor the audio proccessor being used.
+* PowerMate USB Volume Knob
+* Sharp Aquos RS232 TV
+
 ## Install:
 > presumes debian based linux and working domoticz, git, nodejs and npm.
 
