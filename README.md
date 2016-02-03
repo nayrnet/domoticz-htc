@@ -3,9 +3,14 @@
 [![npm](https://img.shields.io/npm/v/npm.svg)]()
 [![node](https://img.shields.io/node/v/gh-badges.svg)]()
 
-NodeJS service interfaces with various Home Theatre hardware and Domoticz to provide a unified and extensable solution.
+This is a NodeJS service interfaces with various Home Theatre hardware and Domoticz to provide a unified and extensable solution. 
 
-This program communicates with my tv via rs232 and with my audio receiver via TCP-Socket. Volume/Mute/Power/Default input are all provided by a PowerMate USB Knob. Communicaiton with Domoticz is done via MQTT API.
+My receiver is remotely located and not readially accessable, so everything needed to remotely manage a complex home theatre is built in.
+Including support for the venerable PowerMate USB Knob made of high quality Aluminum.
+
+At its most basic level it provides hardware support within Domticz for most modern AVR's, and all the things that come with it such as scripting events/timers.
+
+It connects with Domoticz via the MQTT JSON API, and your Pioneer AVR either with a persistent TCP or Serial connection.
 
 > I have completely redone this project so its more portable and easier to adopt.
 
