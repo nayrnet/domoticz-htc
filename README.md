@@ -10,7 +10,8 @@ This is a NodeJS service interfaces with various Home Theatre hardware and Domot
 My receiver is remotely located and not readially accessable, so everything needed to remotely manage a complex home theatre is built in.
 Including support for the venerable PowerMate USB Knob made of high quality Aluminum.
 
-At its most basic level it provides hardware support within Domticz for most modern AVR's, and all the things that come with it such as scripting events/timers.
+At its most basic level it provides hardware support within Domticz for most modern Pioneer AVR's with command controll capability, 
+with a nice browser interface you get all the things that come with Home Automation, such as scripting events/timers and other actions.
 
 It connects with Domoticz via the MQTT JSON API, and your Pioneer AVR either with a persistent TCP or Serial connection.
 
