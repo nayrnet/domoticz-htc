@@ -160,13 +160,14 @@ domoticz.on('data', function(data) {
 	// Zone 2 Input Selector Switch
 	if (data.idx === switches.zone2) {
 		level = parseInt(data.svalue1)
-		if ((zoneInputs[level]) && (zoneInputs[level][0] !== Z2INPUT)) {
-			if (TRACE) { console.log("DOMO: Zone 2 " + zoneInputs[level][1]) }
+		if ((level) && (zoneInputs[level]) && (zoneInputs[level][0] !== Z2INPUT)) {
+			if (TRACE) { console.log("DOMO: Zone 2 " + zoneInputs[level][0]) }
 			if (!Z2POWER) receiver.power2zone(true);
 			receiver.selectInput2zone(zoneInputs[level][0])
-		} else if (Z2POWER) {
+		} else if ((!level) && (Z2POWER)) {
 			receiver.power2zone(false)
-			domoticz.switch(switches.zone2,0)
+			//domoticz.switch(switches.zone2,0)
+			//if (switches.z2volume)	domoticz.switch(switches.z2volume,0);
 		}
 	}
 	if (TRACE) {
