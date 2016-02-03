@@ -181,6 +181,7 @@ receiver.on('power', function(pwr) {
 	if (TRACE) 			console.log("POWER: " + pwr);
 	if (!pwr) {
 		POWER = false
+		INPUT = false
 		domoticz.log("<HTC> Home Theatre is powering down...")
 		if (switches.inputs)	domoticz.switch(switches.inputs,0);
 		if (switches.volume) 	domoticz.switch(switches.volume,0);
@@ -211,6 +212,7 @@ receiver.on('powerZone2', function(pwr) {
 	Z2POWER = pwr
 	if (TRACE) 			console.log("POWER Z2: " + pwr);
 	if (!pwr) {
+		Z2INPUT = false
 		domoticz.log("<HTC> Zone 2 Power Down...")
 		if (switches.zone2)	domoticz.switch(switches.zone2,0);
 		if (switches.z2volume) 	domoticz.switch(switches.z2volume,0);
@@ -251,9 +253,9 @@ receiver.on('mute', function(mute) {
 
 // receiver: input
 receiver.on('input', function(input,inputName) {
-	INPUT = parseInt(input)
 	if (TRACE) 			console.log("INPUT: " + input);
 	if (POWER) {
+		INPUT = parseInt(input)
 		var i = Object.keys(inputs);
 		i.forEach(function(id){
 			if (input === inputs[id][0]) {
@@ -266,9 +268,9 @@ receiver.on('input', function(input,inputName) {
 
 // receiver: input zone 2
 receiver.on('inputZone2', function(input,inputName) {
-	Z2INPUT = parseInt(input)
 	if (TRACE) 			console.log("INPUT Z2: " + input);
 	if (POWER) {
+		Z2INPUT = parseInt(input)
 		var i = Object.keys(zoneInputs);
 		i.forEach(function(id){
 			if (input === zoneInputs[id][0]) {
