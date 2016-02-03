@@ -48,9 +48,6 @@ It connects with Domoticz via the MQTT JSON API, and your Pioneer AVR either wit
 git clone https://github.com/nayrnet/domoticz-htc.git htc
 cd htc
 npm install
-nano systemd/htc.service
-// update paths and users, save.
-sudo cp systemd/htc.service /etc/systemd/service/
 cp config.example config.js
 nano config.js
 // Edit aproprately, save.
