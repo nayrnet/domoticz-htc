@@ -5,6 +5,8 @@
 
 This is a NodeJS service interfaces with various Home Theatre hardware and Domoticz to provide a unified and extensable solution. 
 
+## THIS IS BETA SOFTWARE AT THIS POINT!
+
 My receiver is remotely located and not readially accessable, so everything needed to remotely manage a complex home theatre is built in.
 Including support for the venerable PowerMate USB Knob made of high quality Aluminum.
 
@@ -14,7 +16,7 @@ It connects with Domoticz via the MQTT JSON API, and your Pioneer AVR either wit
 
 > I have completely redone this project so its more portable and easier to adopt.
 
-### Features via Domoticz:
+### Features:
 * Power/Input Selector: React to and Change Audio/Video Sources
   * Multi-Zone Support: Select different sources for each of your zones.
 * Mute/Volume Slider: React to and change volume output.
@@ -23,8 +25,11 @@ It connects with Domoticz via the MQTT JSON API, and your Pioneer AVR either wit
 * FM Tune Selector: Change the FM Frequency on the Radio Tuner.
 * Display Text: Monitor the display on your Pioneer Remotely.
 * Audio Mode Text: Monitor the audio proccessor being used.
-* PowerMate USB Volume Knob
-* Sharp Aquos RS232 TV
+* PowerMate USB Volume Knob w/Status Indicator LED and multiple Gestures.
+* Sharp Aquos RS232 TV Sync
+* Default Volume reset on every input change
+* Max Volume, prevent speaker damage.
+* Very Fast, reacts instantly to changes and inputs.
 
 ### Install:
 > presumes debian based linux and working domoticz, git, nodejs and npm.
@@ -118,7 +123,8 @@ Multi Zone w/Tuner
 
 #### TO-DO:
 * Volume Slider in Domoticz
-* Add support for ZONE2/ZONE3/ZONE4
+* Add support for ZONE3/ZONE4
+* Release
 
 ### Pioneer Setup Prefrences:
 * 055SUC  - Set Power ON Level to 055
