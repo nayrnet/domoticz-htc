@@ -14,7 +14,7 @@ It connects with Domoticz via the MQTT JSON API, and your Pioneer AVR either wit
 
 > I have completely redone this project so its more portable and easier to adopt.
 
-## Remote Controll Features via Domoticz:
+### Features via Domoticz:
 * Power/Input Selector: React to and Change Audio/Video Sources
   * Multi-Zone Support: Select different inputs for different sources.
 * Mute/Volume Slider: React to and change volume output.
@@ -26,7 +26,7 @@ It connects with Domoticz via the MQTT JSON API, and your Pioneer AVR either wit
 * PowerMate USB Volume Knob
 * Sharp Aquos RS232 TV
 
-## Install:
+### Install:
 > presumes debian based linux and working domoticz, git, nodejs and npm.
 
 1. Install MQTT Broker (apt-get install mosquitto)
@@ -51,7 +51,7 @@ nano config.js
 // Edit aproprately, save.
 ```
 
-## Update:
+### Update:
 ```bash
 git pull
 ./daemon.js stop
