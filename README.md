@@ -16,7 +16,7 @@ It connects with Domoticz via the MQTT JSON API, and your Pioneer AVR either wit
 
 ### Features via Domoticz:
 * Power/Input Selector: React to and Change Audio/Video Sources
-  * Multi-Zone Support: Select different inputs for different sources.
+  * Multi-Zone Support: Select different sources for each of your zones.
 * Mute/Volume Slider: React to and change volume output.
   * Multi-Zone Support: Controll each Zone's Volume independently.
 * Listening Mode Selector: Change audio proccessors on the fly (Surround/Direct/Stereo/ProLogic/Extended/etc)
