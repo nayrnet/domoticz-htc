@@ -16,9 +16,12 @@ var	mqtt            = require('node-domoticz-mqtt');
 var	receiver 	= new avr.Pioneer(options);
 var 	domoticz 	= new mqtt.domoticz(options);
 
-if (options.syslog)	{
+if (options.syslog) {
 	var 	SysLogger 	= require('ain2');
 	var	console		= new SysLogger({tag: 'htc', facility: 'daemon'});
+} else {
+	var	Console		= require('console').Console;
+	var	console		= new Console(process.stdout, process.stderr);
 }
 if (options.sharptv) {
 	var	television	= require('./hardware/sharptv.js');
