@@ -122,7 +122,7 @@ domoticz.on('data', function(data) {
 	// Volume Switch
 	if (data.idx === switches.volume) {
 		val = parseInt(data.svalue1) + 1
-		if ((val !== VOLUME) && (VOLUME) && (data.nvalue === 2)) {
+		if ((val !== VOLUME) && (VOLUME) && (data.nvalue === 2) && (READY)) {
 			if (TRACE) { console.log("DOMO: Volume " + val) }
 			MUTE=0
 			WAIT=true
@@ -245,13 +245,12 @@ receiver.on('mute', function(mute) {
 		if (switches.volume) 	domoticz.switch(switches.volume,0);
 		if (powermate) 		powermate.setPulseAwake(true);
 		if (tv) 		tv.mute(1);
-	} else if (MUTE) {
+	} else if ((!mute) && (MUTE)) {
 		if (switches.volume) 	domoticz.switch(switches.volume,255);
 		if (powermate) 		powermate.setPulseAwake(false);
 		if (powermate) 		powermate.setBrightness(VOLUME*2.55);
 		if (tv) 		tv.mute(0);
 	}
-	MUTE = mute
 });
 
 // receiver: input
@@ -373,8 +372,14 @@ function right(delta) {
 	if (READY) {
 		//if (TRACE) 		console.log("PM Right: " + delta);
 		READY = false
+		WAIT = true
 		receiver.volumeUp(3)
 		commandTimer = setTimeout(function() { READY = true; }, 175);
+                clearTimeout(switchTimer)
+		switchTimer = setTimeout(function() { 
+			WAIT = false; 
+			receiver.queryVolume() 
+		}, 1000);
 	}
 }
 
@@ -383,8 +388,14 @@ function left(delta) {
 	if (READY) {
 		//if (TRACE) 		console.log("PM Left: " + delta);
 		READY = false
+		WAIT = true
 		receiver.volumeDown(3)
 		commandTimer = setTimeout(function() { READY = true; }, 175);
+                clearTimeout(switchTimer)
+		switchTimer = setTimeout(function() { 
+			WAIT = false; 
+			receiver.queryVolume() 
+		}, 1000);
 	}
 }
 
