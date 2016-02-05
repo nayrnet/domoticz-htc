@@ -92,7 +92,7 @@ receiver.on("connect", function() {
 domoticz.on('connect', function() {
 	console.log("Domoticz MQTT: connected")
         domoticz.log('<HTC> Home Theatre Controller connected.')
-	domoticz.request(switches.lights)
+	if (switches.lights)	domoticz.request(switches.lights);
 });
 
 // domoticz: data
