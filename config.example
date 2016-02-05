@@ -7,7 +7,7 @@ var options = {
 	powermate	: false,		// Enable PowerMate Volume Knob
 	sharptv		: false,		// Enable SharpTV Sync & OSD
 	host		: 'localhost',		// MQTT Broker Host (Domoticz)
-	avrPort		: 21,			// Dedicated Telnet port on Pioneer
+	avrPort		: 23,			// Dedicated Telnet port on Pioneer
 	avrHost		: "192.168.1.100",	// IP Address of Pioneer
 	maxvol		: 161,			// 0dB, issue telnet: 3SUD for hard enforcment.
 	tvPort		: "/dev/ttyUSB-TV",	// Serial Port for TV
