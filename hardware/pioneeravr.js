@@ -13,7 +13,7 @@ var Pioneer = function(options) {
 	events.EventEmitter.call(this); // inherit from EventEmitter
 	this.client = this.connect(options);
 	this.inputNames = {};
-	//TRACE = options.log;
+	TRACE = options.log;
 	MAXVOL = options.maxvol;
 };
 
