@@ -155,9 +155,10 @@ domoticz.on('data', function(data) {
 	// FM Tuner Selector Switch
 	if (data.idx === switches.tuner) {
 		level = parseInt(data.svalue1)
-		if (radio[level]) {
-			if (TRACE) { console.log("DOMO: Tuner " + radio[level][1]) }
-			receiver.setTuner(radio[level][0])
+		if ((radio[level]) && (FREQUENCY !== radio[level][0])) {
+			FREQUENCY=radio[level][0]
+			if (TRACE) { console.log("DOMO: Tuner " + FREQUENCY + " - " + radio[level][1]) }
+			receiver.setTuner(FREQUENCY)
 		}
 	}
 	// Zone 2 Input Selector Switch
@@ -185,6 +186,7 @@ receiver.on('power', function(pwr) {
 	if (!pwr) {
 		POWER = false
 		INPUT = false
+		FREQUENCY = false
 		domoticz.log("<HTC> Home Theatre is powering down...")
 		if (switches.inputs)	domoticz.switch(switches.inputs,0);
 		if (switches.volume) 	domoticz.switch(switches.volume,0);
@@ -202,6 +204,7 @@ receiver.on('power', function(pwr) {
 		POWER = true
 		//receiver.queryinput()
 		if (switches.volume) 	domoticz.switch(receiver.queryVolume);
+		if (switches.tuner)	receiver.queryTuner();
 		if (switches.zone2)	receiver.query2power();
 		if (switches.zone3)	receiver.query3power();;
 		if (switches.zone4)	receiver.query4power();;
@@ -258,6 +261,7 @@ receiver.on('input', function(input,inputName) {
 	if (TRACE) 			console.log("INPUT: " + input);
 	if (POWER) {
 		INPUT = parseInt(input)
+		if ((switches.tuner) && (INPUT === 2) && (!FREQUENCY))		receiver.queryTuner();;
 		var i = Object.keys(inputs);
 		i.forEach(function(id){
 			if (input === inputs[id][0]) {
@@ -273,11 +277,27 @@ receiver.on('inputZone2', function(input,inputName) {
 	if (TRACE) 			console.log("INPUT Z2: " + input);
 	if (POWER) {
 		Z2INPUT = parseInt(input)
+		if ((switches.tuner) && (Z2INPUT === 2) && (!FREQUENCY))	receiver.queryTuner();;
 		var i = Object.keys(zoneInputs);
 		i.forEach(function(id){
 			if (input === zoneInputs[id][0]) {
 				domoticz.switch(switches.zone2,id)
 				domoticz.log("<HTC> Zone2 input changed to " + zoneInputs[id][1])
+			}
+		});
+	}
+});
+
+// receiver: tuner frequency
+receiver.on('frequency', function(fm) {
+	if (TRACE) 			console.log("FREQUENCY: " + fm);
+	if ((POWER) && (switches.tuner)) {
+		FREQUENCY = fm.substr(1)
+		var i = Object.keys(radio);
+		i.forEach(function(id){
+			if (fm.substr(1) === radio[id][0]) {
+				domoticz.switch(switches.tuner,id)
+				domoticz.log("<HTC> radio changed to " + radio[id][1])
 			}
 		});
 	}

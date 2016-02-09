@@ -4,6 +4,7 @@ var 	util		= require('util'),
     	net    		= require('net'),
     	events 		= require('events'),
     	request 	= require('request'),
+ 	serialport 	= require("serialport"),
 	MAXVOL		= 161,			// Max Volume 0db (Telnet: 3SUD to hard enforce)
 	TRACE 		= true,
 	DETAIL	 	= true;
@@ -12,7 +13,7 @@ var Pioneer = function(options) {
 	events.EventEmitter.call(this); // inherit from EventEmitter
 	this.client = this.connect(options);
 	this.inputNames = {};
-	TRACE = options.log;
+	//TRACE = options.log;
 	MAXVOL = options.maxvol;
 };
 
@@ -20,24 +21,32 @@ util.inherits(Pioneer, events.EventEmitter);
 
 Pioneer.prototype.connect = function(options) {
 	var self = this;
-    	var client = net.connect({ host: options.avrHost, port: options.avrPort});
+	if (isNaN(options.avrPort)) {
+		var SerialPort = serialport.SerialPort; 	// localize object constructor 
+		var client = new SerialPort(options.avrPort, { baudrate: 9600, parser: serialport.parsers.readline("\n") });
+	} else {
+	    	var client = net.connect({ host: options.avrHost, port: options.avrPort});
+	}
+	client.on("connect", function (socket) {
+        	handleConnection(self);
+	});
 
-    	client.on("connect", function (socket) {
-        	handleConnection(self, socket);
-    	});
-    
+	client.on("open", function (socket) {
+        	handleConnection(self);
+	});
+
     	client.on("data", function(data) {
-        	handleData(self, data);
-     	});
+       		handleData(self, data);
+     	});	
 
     	client.on("end", function () {
-        	handleEnd(self);
+       		handleEnd(self);
     	});
 
     	client.on("error", function(err) {
-        	handleError(self, err);
+       		handleError(self, err);
     	});
-    	return client;
+	return client;
 };
 
 // Begin Query Functions
@@ -301,22 +310,17 @@ Pioneer.prototype.setTuner = function(frequency) {
 	if (TRACE) {
 		console.log("setting tuner to : " + array[0] + array[1] + array[2] + "." + array[3] + array[4] + "MHz");
 	}
-	this.client.write("TAC\r");
-	this.client.write(array[0] + "TP\r");
-	this.client.write(array[1] + "TP\r");
-	this.client.write(array[2] + "TP\r");
-	this.client.write(array[3] + "TP\r");
-	this.client.write(array[4] + "TP\r");
+	this.client.write("TAC\r" + array[0] + "TP\r" + array[1] + "TP\r" + array[2] + "TP\r" + array[3] + "TP\r" + array[4] + "TP\r");
 };
 
 
 // On Connection refresh device status and setup timers to update on occasion.
-function handleConnection(self, socket) {
+function handleConnection(self) {
    	if (TRACE) {
         	console.log("AVR: got connection.");
     	}
     	self.client.write("\r");    // wake
-    	self.socket = socket;
+    	//self.socket = socket;
 	self.emit("connect");
 }
 
