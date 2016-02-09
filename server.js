@@ -489,12 +489,24 @@ if (powermate) {
 
 // receiver: error
 receiver.on('error', function(error) {
-	console.log("FATAL AVR ERROR: " + error)
-	domoticz.log("<HTC> FATAL AVR ERROR: " + error)
+	domoticz.log("<HTC> AVR ERROR: " + error.code)
+	if (error.code === 'ECONNREFUSED') {
+		console.log('AVR Connection Refused: ' + options.avrHost + ':' + options.avrPort);
+		//receiver.setTimeout(30000, function() { receiver.connect(options) } );
+	} else if (error.code === 'ENOTFOUND') {
+		console.log('AVR Host Not Found: ' + options.avrHost);
+	} else {
+		console.log("FATAL AVR ERROR: " + error)
+	}
 	if (powermate) { powermate.close() }
-        setTimeout(function() {
-		process.exit()
-        }, 500);
+        setTimeout(function() { process.exit() }, 500);
+});
+
+// receiver: end
+receiver.on('end', function() {
+	domoticz.log("<HTC> AVR CONNECTION CLOSED. reconnecting in 10s")
+	console.log("AVR CONNECTION CLOSED! reconnecting in 10s")
+	receiver.setTimeout(10000, function() { receiver.connect(options) } );
 });
 
 // domoticz: error
