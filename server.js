@@ -210,7 +210,7 @@ receiver.on('power', function(pwr) {
 		domoticz.log("[HTC] Pioneer AVR is ON")
 		POWER = true
 		//receiver.queryinput()
-		if (switches.modes)	domoticz.switch(switches.modes,10);
+		if (switches.modes)	domoticz.switch(switches.modes,255);
 		if (switches.volume) 	receiver.queryVolume();
 		if (switches.tuner)	receiver.queryTuner();
 		if (switches.zone2)	receiver.query2power();
