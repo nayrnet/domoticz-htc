@@ -60,6 +60,7 @@ var	READY		= true;
 var	LIGHTS		= false;
 var	LIGHTS2		= false;
 var	FREQUENCY	= false;
+var	FM		= false;
 
 var	switchTimer;
 var	dblClickTimer;
@@ -241,7 +242,7 @@ receiver.on('powerZone2', function(pwr) {
 receiver.on('volume', function(val) {
 	if (TRACE) 			console.log("VOLUME: " + val);
 	if (tv) 			tv.volume(val);
-	if (powermate) 			powermate.setBrightness(val*2.55);
+	//if (powermate) 			powermate.setBrightness(val*2.55);
 	if ((switches.volume) && (VOLUME !== val) && (!WAIT)) {
 		WAIT = true
 		domoticz.switch(switches.volume,parseInt(val))
@@ -313,6 +314,7 @@ receiver.on('frequency', function(fm) {
 			if (fm.substr(1) === radio[id][0]) {
 				domoticz.switch(switches.tuner,id)
 				domoticz.log("[HTC] Radio tuned to " + radio[id][1])
+				FM = parseInt(id)
 			}
 		});
 	}
@@ -374,7 +376,7 @@ if (powermate) {
 function setInput(input) {
 	if (!POWER) {
 		receiver.power(1)
-		if (tv) 		tv.power(1);
+		if ((tv) && (input !== 2))	tv.power(1);
 		receiver.volume(45)
 		setTimeout(function() { receiver.selectInput(input) }, 2500);
 		if (powermate) { 
@@ -385,8 +387,11 @@ function setInput(input) {
 			}, 10000);
 		}
 	} else {
-		if ((INPUT === 2) && (tv))	tv.power(1);
-		if ((input === 2) && (tv))	tv.power(0);
+		if ((input === 2) && (tv)) {
+			tv.power(0)
+		} else if (tv) {
+			tv.power(1)
+		}
 		if (MUTE) 			receiver.mute(0);
 		if (options.defaultVolume)	receiver.volume(options.defaultVolume);
 		receiver.selectInput(input)
@@ -440,17 +445,19 @@ function downRight(delta) {
 		READY = false
 		if ((options.ptz) && (INPUT === 24) && (POWER)) {		// Hijack Dimmer for PTZ on Camera Input
 			console.log("PTZ Debug")
-			commandTimer = setTimeout(function() { READY = true; }, 1000);
-		} else if ((switches.tuner) && (INPUT === 02) && (POWER)) {	// Hijack Dimmer for FM Tuner Selector
-			console.log("Tuner Debug")
-			commandTimer = setTimeout(function() { READY = true; }, 1000);
+			commandTimer = setTimeout(function() { READY = true }, 1000);
+		} else if ((switches.tuner) && (INPUT === 2) && (POWER)) {	// Hijack Dimmer for FM Tuner Selector
+			var up = FM + 10;
+			if (up > 100)	up = 10;
+			domoticz.switch(switches.tuner,up)
+			setTimeout(function() { READY = true }, 1000);
 		} else {
 			level = (LIGHTS + (Math.abs(delta)*2))
-			if(level< 10) level = 18
-			domoticz.switch(switches.lights,level)
+			if (level < 10)		level = 18;
+			if (switches.lights)	domoticz.switch(switches.lights,level);
+			if (TRACE)		console.log('Lights Up ' + level)
+			commandTimer = setTimeout(function() { READY = true }, 100);
 			LIGHTS = level
-			commandTimer = setTimeout(function() { READY = true; }, 100);
-			if(TRACE) { console.log('Lights Up ' + level) }
 		}
 	}
 }
@@ -460,16 +467,18 @@ function downLeft(delta) {
 		READY = false
 		if ((options.ptz) && (INPUT === 24) && (POWER)) {		// Hijack Dimmer for PTZ on Camera Input
 			console.log("PTZ Debug")
-			READY = true
-		} else if ((switches.tuner) && (INPUT === 02) && (POWER)) {	// Hijack Dimmer for FM Tuner Selector
-			console.log("Tuner Debug")
-			READY = true
+			commandTimer = setTimeout(function() { READY = true; }, 2000);
+		} else if ((switches.tuner) && (INPUT === 2) && (POWER)) {	// Hijack Dimmer for FM Tuner Selector
+			var down = FM - 10;
+			if (down < 10)	down = 100;
+			domoticz.switch(switches.tuner,down)
+			setTimeout(function() { READY = true; }, 1000);
 		} else {
 			level = (LIGHTS - (Math.abs(delta)*2))
 			if(level<10) level = 0
 			domoticz.switch(switches.lights,level)
 			LIGHTS = level
-			commandTimer = setTimeout(function() { READY = true; }, 100);
+			commandTimer = setTimeout(function() { READY = true }, 100);
 			if(TRACE) { console.log('Lights Down ' + level) }
 		}
 	}
