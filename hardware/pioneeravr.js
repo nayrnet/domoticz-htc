@@ -39,10 +39,10 @@ Pioneer.prototype.connect = function(options) {
        		handleData(self, data);
      	});	
 
-    	client.on("end", function () {
-		//self.client.destroy();
-       		handleEnd(self);
-    	});
+    	//client.on("end", function () {
+	//	//self.client.destroy();
+       	//	handleEnd(self);
+    	//});
 
     	client.on("close", function () {
        		handleEnd(self);
