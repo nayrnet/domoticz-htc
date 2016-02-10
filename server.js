@@ -204,7 +204,7 @@ receiver.on('power', function(pwr) {
 		domoticz.log("[HTC] Pioneer AVR is ON")
 		POWER = true
 		//receiver.queryinput()
-		if (switches.modes)	domoticz.switch(switches.modes,255);
+		if (switches.modes)	domoticz.switch(switches.modes,10);
 		if (switches.volume) 	receiver.queryVolume();
 		if (switches.tuner)	receiver.queryTuner();
 		if (switches.zone2)	receiver.query2power();
@@ -380,8 +380,10 @@ function setInput(input) {
 			}, 10000);
 		}
 	} else {
-		if (MUTE) 		receiver.mute(0)
-		receiver.volume(45)
+		if ((INPUT === 2) && (tv))	tv.power(1);
+		if ((input === 2) && (tv))	tv.power(0);
+		if (MUTE) 			receiver.mute(0);
+		if (options.defaultVolume)	receiver.volume(options.defaultVolume);
 		receiver.selectInput(input)
 		if (powermate) { 
 			powermate.setPulseAwake(true)

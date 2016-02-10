@@ -10,6 +10,7 @@ var options = {
 	avrPort		: 23,			// Serial Port (String) or TCP Port (Int) of Pioneer
 	avrHost		: "192.168.1.100",	// IP Address of Pioneer (if Int used for avrPort)
 	maxvol		: 161,			// 0dB, issue telnet: 3SUD for hard enforcment.
+	defaultVolume	: 45,			// Default Volume (%) on Input Change
 	tvPort		: "/dev/ttyUSB-TV",	// Serial Port for TV
 	idx		: [ ],			// Init IDX Array
 	request		: false,		// Required for MQTT
