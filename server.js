@@ -217,7 +217,6 @@ receiver.on('power', function(pwr) {
 		if (switches.zone3)	receiver.query3power();;
 		if (switches.zone4)	receiver.query4power();;
 		if (powermate) 		powermate.setBrightness(VOLUME*2.55);
-		if (tv) 		tv.power(1);
 	}
 });
 
@@ -383,7 +382,7 @@ function setInput(input) {
 			powermate.setPulseAwake(true)
 			setTimeout(function() {
 				powermate.setPulseAwake(false)
-                	        powermate.setBrightness(VOLUME*2.55)
+                	        powermate.setBrightness(64)
 			}, 10000);
 		}
 	} else {
@@ -399,7 +398,7 @@ function setInput(input) {
 			powermate.setPulseAwake(true)
 			setTimeout(function() {
 				powermate.setPulseAwake(false)
-                	        powermate.setBrightness(VOLUME*2.55)
+                	        powermate.setBrightness(64)
 			}, 5000);
 		}
 	} 

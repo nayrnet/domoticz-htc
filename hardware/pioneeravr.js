@@ -531,6 +531,7 @@ function handleEnd(self) {
 	if (TRACE) {
 		console.log("AVR: connection ended");
 	}
+	self.client.destroy();
 	self.emit("end");
 }
 
