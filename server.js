@@ -507,11 +507,11 @@ receiver.on('error', function(error) {
 });
 
 // receiver: end
-receiver.on('end', function() {
-	domoticz.log("[HTC] AVR CONNECTION CLOSED. try reconnect every 30s")
-	console.log("AVR CONNECTION CLOSED! try reconnect every 30s")
-	setTimeout(function() { receiver.connect(options) }, 30000 );
-});
+// receiver.on('end', function() {
+//	domoticz.log("[HTC] AVR CONNECTION CLOSED. try reconnect every 30s")
+//	console.log("AVR CONNECTION CLOSED! try reconnect every 30s")
+//	setTimeout(function() { receiver.connect(options) }, 30000 );
+//});
 
 // domoticz: error
 domoticz.on('error', function(error) {
