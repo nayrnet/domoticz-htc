@@ -82,12 +82,6 @@ receiver.on("connect", function() {
                 receiver.queryaudioMode()
                 receiver.queryVolume()
         }, 3000);
-
-	// Query status every 5 mins, make sure connection is still alive and we are in sync.
-	setInterval(function(){
-                receiver.querypower()
-                receiver.queryinput()
-	}, 300000);  
 });
 
 domoticz.on('connect', function() {
@@ -495,7 +489,6 @@ receiver.on('error', function(error) {
 	if ((error.code === 'ECONNREFUSED') || (error.code === 'ETIMEDOUT') || (error.code === 'ECONNRESET') || error.code === 'EHOSTUNREACH') {
 		console.log('AVR ERROR: ' + error.code + ' @ ' + options.avrHost + ':' + options.avrPort);
 		//domoticz.log('[HTC] AVR CONNECTION ERROR: ' + error.code);
-		setTimeout(function() { receiver.connect(options) }, 30000 );
 	} else if (error.code === 'EPIPE') {
 		console.log('AVR ERROR: Connection not avilable, dropping request')
 	} else {
@@ -510,7 +503,6 @@ receiver.on('error', function(error) {
 receiver.on('end', function() {
 	domoticz.log("[HTC] AVR CONNECTION CLOSED. try reconnect every 30s")
 	console.log("AVR CONNECTION CLOSED! try reconnect every 30s")
-	setTimeout(function() { receiver.connect(options) }, 30000 );
 });
 
 // domoticz: error

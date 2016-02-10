@@ -9,6 +9,8 @@ var 	util		= require('util'),
 	TRACE 		= true,
 	DETAIL	 	= true;
 
+var	idleTimer;
+
 var Pioneer = function(options) {
 	events.EventEmitter.call(this); // inherit from EventEmitter
 	this.client = this.connect(options);
@@ -29,6 +31,9 @@ Pioneer.prototype.connect = function(options) {
 	}
 	client.on("connect", function (socket) {
         	handleConnection(self);
+		idleTimer = setTimeout(function() {
+		    	self.client.write("\r");    // idle activity
+                }, 30000 );
 	});
 
 	client.on("open", function (socket) {
@@ -45,6 +50,10 @@ Pioneer.prototype.connect = function(options) {
     	//});
 
     	client.on("close", function () {
+		clearTimeout(idleTimer)
+		setTimeout(function() { 
+		    	self.client = self.connect(options);
+		}, 30000 );
        		handleEnd(self);
     	});
 
@@ -532,6 +541,7 @@ function handleEnd(self) {
 	if (TRACE) {
 		console.log("AVR: connection ended");
 	}
+        setTimeout(function() { receiver.connect(options) }, 30000 );
 	self.emit("end");
 }
 
