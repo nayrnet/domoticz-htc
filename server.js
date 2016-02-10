@@ -121,6 +121,11 @@ domoticz.on('data', function(data) {
 	}
 	// Volume Switch
 	if (data.idx === switches.volume) {
+		if ((data.dtype !== "Light/Switch") || (data.stype !== "Switch") || (data.switchType !== "Dimmer")) {
+			domoticz.log("[HTC] ERROR: Wrong Switch Type - " + data.name)
+			console.log("DOMO ERROR: Wrong Switch Type - " + data.name)
+			return 0
+		}
 		val = parseInt(data.svalue1) + 1
 		if ((val !== VOLUME) && (VOLUME) && (data.nvalue === 2) && (READY)) {
 			if (TRACE) { console.log("DOMO: Volume " + val) }
