@@ -40,7 +40,7 @@ Pioneer.prototype.connect = function(options) {
      	});	
 
     	client.on("end", function () {
-		self.client.destroy();
+		//self.client.destroy();
        		handleEnd(self);
     	});
 
