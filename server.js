@@ -494,7 +494,7 @@ if (powermate) {
 receiver.on('error', function(error) {
 	if ((error.code === 'ECONNREFUSED') || (error.code === 'ETIMEDOUT') || (error.code === 'ECONNRESET')) {
 		console.log('AVR ERROR: ' + error.code + ' @ ' + options.avrHost + ':' + options.avrPort);
-		domoticz.log('[HTC] AVR CONNECTION ERROR: ' + error.code);
+		//domoticz.log('[HTC] AVR CONNECTION ERROR: ' + error.code);
 		receiver.setTimeout(30000, function() { receiver.connect(options) } );
 	} else if (error.code === 'EPIPE') {
 		console.log('AVR ERROR: Connection not avilable, dropping request')
@@ -508,9 +508,9 @@ receiver.on('error', function(error) {
 
 // receiver: end
 receiver.on('end', function() {
-	domoticz.log("[HTC] AVR CONNECTION CLOSED. reconnecting in 10s")
-	console.log("AVR CONNECTION CLOSED! reconnecting in 10s")
-	receiver.setTimeout(10000, function() { receiver.connect(options) } );
+	domoticz.log("[HTC] AVR CONNECTION CLOSED. try reconnect every 30s")
+	console.log("AVR CONNECTION CLOSED! try reconnect every 30s")
+	receiver.setTimeout(30000, function() { receiver.connect(options) } );
 });
 
 // domoticz: error
