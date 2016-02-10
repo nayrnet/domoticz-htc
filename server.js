@@ -492,7 +492,7 @@ if (powermate) {
 
 // receiver: error
 receiver.on('error', function(error) {
-	if ((error.code === 'ECONNREFUSED') || (error.code === 'ENOTFOUND')) {
+	if ((error.code === 'ECONNREFUSED') || (error.code === 'ETIMEDOUT') || (error.code === 'ECONNRESET')) {
 		console.log('AVR ERROR: ' + error.code + ' @ ' + options.avrHost + ':' + options.avrPort);
 		domoticz.log('[HTC] AVR CONNECTION ERROR: ' + error.code);
 		receiver.setTimeout(30000, function() { receiver.connect(options) } );
