@@ -23,7 +23,7 @@ Pioneer.prototype.connect = function(options) {
 	var self = this;
 	if (isNaN(options.avrPort)) {
 		var SerialPort = serialport.SerialPort; 	// localize object constructor 
-		var client = new SerialPort(options.avrPort, { baudrate: 9600, parser: serialport.parsers.readline("\n") });
+		var client = new SerialPort(options.avrPort, { baudrate: 9600, rtscts: true,  parser: serialport.parsers.readline("\n") });
 	} else {
 	    	var client = net.connect({ host: options.avrHost, port: options.avrPort});
 	}
@@ -40,6 +40,10 @@ Pioneer.prototype.connect = function(options) {
      	});	
 
     	client.on("end", function () {
+       		handleEnd(self);
+    	});
+
+    	client.on("close", function () {
        		handleEnd(self);
     	});
 

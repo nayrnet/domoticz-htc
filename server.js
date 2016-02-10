@@ -91,7 +91,7 @@ receiver.on("connect", function() {
 
 domoticz.on('connect', function() {
 	console.log("Domoticz MQTT: connected")
-        domoticz.log('<HTC> Home Theatre Controller connected.')
+        domoticz.log('[HTC] Home Theatre Controller connected.')
 	if (switches.lights)	domoticz.request(switches.lights);
 });
 
@@ -113,7 +113,7 @@ domoticz.on('data', function(data) {
 	// Audio Mode Selector Switch
 	if (data.idx === switches.modes) {
 		level = parseInt(data.svalue1)
-		if ((modes[level]) && (modes[level][0] !== MODE)) {
+		if ((modes[level]) && (modes[level][0] !== MODE) && (POWER)) {
 			if (TRACE) { console.log("DOMO: Audio Mode " + modes[level][1]) }
 			receiver.listeningMode(modes[level][0])
 			MODE = modes[level][0]
@@ -187,8 +187,9 @@ receiver.on('power', function(pwr) {
 		POWER = false
 		INPUT = false
 		FREQUENCY = false
-		domoticz.log("<HTC> Home Theatre is powering down...")
+		domoticz.log("[HTC] Pioneer AVR is off")
 		if (switches.inputs)	domoticz.switch(switches.inputs,0);
+		if (switches.modes)	domoticz.switch(switches.modes,0);
 		if (switches.volume) 	domoticz.switch(switches.volume,0);
 		if (switches.zone2)	domoticz.switch(switches.zone2,0);
 		if (switches.z2volume) 	domoticz.switch(switches.z2volume,0);
@@ -200,10 +201,11 @@ receiver.on('power', function(pwr) {
 		if (powermate) 		powermate.setPulseAsleep(true);
 		if (tv)			tv.power(0);
 	} else {
-		domoticz.log("<HTC> Home Theatre is powering up...")
+		domoticz.log("[HTC] Pioneer AVR is ON")
 		POWER = true
 		//receiver.queryinput()
-		if (switches.volume) 	domoticz.switch(receiver.queryVolume);
+		if (switches.modes)	domoticz.switch(switches.modes,10);
+		if (switches.volume) 	receiver.queryVolume();
 		if (switches.tuner)	receiver.queryTuner();
 		if (switches.zone2)	receiver.query2power();
 		if (switches.zone3)	receiver.query3power();;
@@ -219,11 +221,11 @@ receiver.on('powerZone2', function(pwr) {
 	if (TRACE) 			console.log("POWER Z2: " + pwr);
 	if (!pwr) {
 		Z2INPUT = false
-		domoticz.log("<HTC> Zone 2 Power Down...")
+		domoticz.log("[HTC] Zone 2: OFF")
 		if (switches.zone2)	domoticz.switch(switches.zone2,0);
 		if (switches.z2volume) 	domoticz.switch(switches.z2volume,0);
 	} else {
-		domoticz.log("<HTC> Zone 2 Power Up...")
+		domoticz.log("[HTC] Zone 2: ON")
 		if (switches.zone2)	receiver.query2input();
 		if (switches.z2volume) 	receiver.queryVolume2zone();
 	}
@@ -236,19 +238,27 @@ receiver.on('volume', function(val) {
 	if (tv) 			tv.volume(val);
 	if (powermate) 			powermate.setBrightness(val*2.55);
 	if ((switches.volume) && (VOLUME !== val) && (!WAIT)) {
+		WAIT = true
 		domoticz.switch(switches.volume,parseInt(val))
 	}
+	clearTimeout(switchTimer)
+	switchTimer = setTimeout(function() { 
+		WAIT = false
+	}, 1500);
 	VOLUME=val
+	READY=true
 });
 
 // receiver: mute
 receiver.on('mute', function(mute) {
 	if (TRACE) 			console.log("MUTE: " + mute);
 	if ((mute) && (!MUTE)) {
+		domoticz.log("[HTC] MUTE: ON")
 		if (switches.volume) 	domoticz.switch(switches.volume,0);
 		if (powermate) 		powermate.setPulseAwake(true);
 		if (tv) 		tv.mute(1);
 	} else if ((!mute) && (MUTE)) {
+		domoticz.log("[HTC] MUTE: OFF")
 		if (switches.volume) 	domoticz.switch(switches.volume,255);
 		if (powermate) 		powermate.setPulseAwake(false);
 		if (powermate) 		powermate.setBrightness(VOLUME*2.55);
@@ -266,7 +276,7 @@ receiver.on('input', function(input,inputName) {
 		i.forEach(function(id){
 			if (input === inputs[id][0]) {
 				domoticz.switch(switches.inputs,id)
-				domoticz.log("<HTC> input changed to " + inputs[id][1])
+				domoticz.log("[HTC] Input changed to " + inputs[id][1])
 			}
 		});
 	}
@@ -282,7 +292,7 @@ receiver.on('inputZone2', function(input,inputName) {
 		i.forEach(function(id){
 			if (input === zoneInputs[id][0]) {
 				domoticz.switch(switches.zone2,id)
-				domoticz.log("<HTC> Zone2 input changed to " + zoneInputs[id][1])
+				domoticz.log("[HTC] Zone2 input changed to " + zoneInputs[id][1])
 			}
 		});
 	}
@@ -297,7 +307,7 @@ receiver.on('frequency', function(fm) {
 		i.forEach(function(id){
 			if (fm.substr(1) === radio[id][0]) {
 				domoticz.switch(switches.tuner,id)
-				domoticz.log("<HTC> radio changed to " + radio[id][1])
+				domoticz.log("[HTC] Radio tuned to " + radio[id][1])
 			}
 		});
 	}
@@ -343,12 +353,12 @@ if (powermate) {
 		// This is a right turn
 		if (delta > 0) {
 			if (DOWN) downRight(delta); // down
-			else right(delta); // up
+			else turn(delta); // up
 		}
 		// Left
 		if (delta < 0) {
 			if (DOWN) downLeft(delta); // down
-			else left(delta); // up
+			else turn(delta); // up
 	    	}
 	});
 }
@@ -388,34 +398,12 @@ function setInput(input) {
 // Gessture Functions
 
 // Turn up volume
-function right(delta) {
+function turn(delta) {
 	if (READY) {
-		//if (TRACE) 		console.log("PM Right: " + delta);
+		//if (TRACE) 		console.log("PM Turn: " + delta);
 		READY = false
 		WAIT = true
-		receiver.volumeUp(3)
-		commandTimer = setTimeout(function() { READY = true; }, 175);
-                clearTimeout(switchTimer)
-		switchTimer = setTimeout(function() { 
-			WAIT = false; 
-			receiver.queryVolume() 
-		}, 1000);
-	}
-}
-
-// Turn down volume
-function left(delta) {
-	if (READY) {
-		//if (TRACE) 		console.log("PM Left: " + delta);
-		READY = false
-		WAIT = true
-		receiver.volumeDown(3)
-		commandTimer = setTimeout(function() { READY = true; }, 175);
-                clearTimeout(switchTimer)
-		switchTimer = setTimeout(function() { 
-			WAIT = false; 
-			receiver.queryVolume() 
-		}, 1000);
+		receiver.volume(VOLUME+delta);
 	}
 }
 
@@ -489,22 +477,21 @@ if (powermate) {
 
 // receiver: error
 receiver.on('error', function(error) {
-	domoticz.log("<HTC> AVR ERROR: " + error.code)
-	if (error.code === 'ECONNREFUSED') {
-		console.log('AVR Connection Refused: ' + options.avrHost + ':' + options.avrPort);
-		//receiver.setTimeout(30000, function() { receiver.connect(options) } );
-	} else if (error.code === 'ENOTFOUND') {
-		console.log('AVR Host Not Found: ' + options.avrHost);
+	if ((error.code === 'ECONNREFUSED') || (error.code === 'ENOTFOUND')) {
+		console.log('AVR ERROR: ' + error.code + ' @ ' + options.avrHost + ':' + options.avrPort);
+		domoticz.log('[HTC] AVR CONNECTION ERROR: ' + error.code);
+		receiver.setTimeout(30000, function() { receiver.connect(options) } );
 	} else {
+		domoticz.log("[HTC] FATAL AVR ERROR: " + error.code)
 		console.log("FATAL AVR ERROR: " + error)
+		if (powermate) { powermate.close() }
+        	setTimeout(function() { process.exit() }, 500);
 	}
-	if (powermate) { powermate.close() }
-        setTimeout(function() { process.exit() }, 500);
 });
 
 // receiver: end
 receiver.on('end', function() {
-	domoticz.log("<HTC> AVR CONNECTION CLOSED. reconnecting in 10s")
+	domoticz.log("[HTC] AVR CONNECTION CLOSED. reconnecting in 10s")
 	console.log("AVR CONNECTION CLOSED! reconnecting in 10s")
 	receiver.setTimeout(10000, function() { receiver.connect(options) } );
 });
@@ -524,13 +511,13 @@ if (powermate) {
 // htc: uncaught error
 process.on('uncaughtException', function(err) {
 	// handle the error safely
-	console.log("ERROR: " + err)
+	console.log("UNKNOWN ERROR: " + err)
 });
 
 // htc: OnExit
 process.on( "SIGINT", function() {
 	console.log("Exiting...")
-	domoticz.log("<HTC> Process Ended")
+	domoticz.log("[HTC] Process Ended")
 	if (powermate) { powermate.close() }
         setTimeout(function() {
 		process.exit()
