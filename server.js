@@ -496,6 +496,8 @@ receiver.on('error', function(error) {
 		console.log('AVR ERROR: ' + error.code + ' @ ' + options.avrHost + ':' + options.avrPort);
 		domoticz.log('[HTC] AVR CONNECTION ERROR: ' + error.code);
 		receiver.setTimeout(30000, function() { receiver.connect(options) } );
+	} else if (error.code === 'EPIPE') {
+		console.log('AVR ERROR: CONNECTION NOT AVILABLE')
 	} else {
 		domoticz.log("[HTC] FATAL AVR ERROR: " + error.code)
 		console.log("FATAL AVR ERROR: " + error)
