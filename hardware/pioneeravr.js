@@ -40,6 +40,7 @@ Pioneer.prototype.connect = function(options) {
      	});	
 
     	client.on("end", function () {
+		self.client.destroy();
        		handleEnd(self);
     	});
 
@@ -531,7 +532,6 @@ function handleEnd(self) {
 	if (TRACE) {
 		console.log("AVR: connection ended");
 	}
-	self.client.destroy();
 	self.emit("end");
 }
 
