@@ -503,6 +503,8 @@ receiver.on('error', function(error) {
 receiver.on('end', function() {
 	domoticz.log("[HTC] AVR CONNECTION CLOSED. try reconnect every 30s")
 	console.log("AVR CONNECTION CLOSED! try reconnect every 30s")
+	if (switches.displayText) 	domoticz.device(switches.displayText,0,'AVR Offline');
+	if (switches.modeText) 		domoticz.device(switches.modeText,0,'AVR Offline');
 });
 
 // domoticz: error
