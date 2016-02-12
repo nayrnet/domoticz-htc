@@ -505,6 +505,15 @@ receiver.on('end', function() {
 	console.log("AVR CONNECTION CLOSED! try reconnect every 30s")
 	if (switches.displayText) 	domoticz.device(switches.displayText,0,'AVR Offline');
 	if (switches.modeText) 		domoticz.device(switches.modeText,0,'AVR Offline');
+	if (switches.inputs)		domoticz.switch(switches.inputs,0);
+	if (switches.modes)		domoticz.switch(switches.modes,0);
+	if (switches.volume) 		domoticz.switch(switches.volume,0);
+	if (switches.zone2)		domoticz.switch(switches.zone2,0);
+	if (switches.z2volume) 		domoticz.switch(switches.z2volume,0);
+	if (switches.zone3) 		domoticz.switch(switches.zone3,0);
+	if (switches.z3volume) 		domoticz.switch(switches.z3volume,0);
+	if (switches.zone4) 		domoticz.switch(switches.zone4,0);
+	if (switches.tuner) 		domoticz.switch(switches.tuner,0);
 });
 
 // domoticz: error
