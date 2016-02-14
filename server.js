@@ -67,7 +67,6 @@ var	dblClickTimer;
 var	pressTimer;
 var	commandTimer;
 
-
 // START OF EVENTS
 
 // OnConnect Events
@@ -82,6 +81,10 @@ receiver.on("connect", function() {
                 receiver.queryaudioMode()
                 receiver.queryVolume()
         }, 3000);
+        setInterval(function() {
+                receiver.querypower()
+                receiver.queryinput()
+        }, 600000);
 });
 
 domoticz.on('connect', function() {
