@@ -4,7 +4,6 @@ var 	util		= require('util'),
     	net    		= require('net'),
     	events 		= require('events'),
     	request 	= require('request'),
- 	serialport 	= require("serialport"),
 	MAXVOL		= 161,			// Max Volume 0db (Telnet: 3SUD to hard enforce)
 	TRACE 		= true,
 	DETAIL	 	= true;
@@ -23,6 +22,7 @@ util.inherits(Pioneer, events.EventEmitter);
 
 Pioneer.prototype.connect = function(options) {
 	var self = this;
+	if (isNaN(options.avrPort)) { var serialport 	= require("serialport") };
 	if (isNaN(options.avrPort)) {
 		var SerialPort = serialport.SerialPort; 	// localize object constructor 
 		var client = new SerialPort(options.avrPort, { baudrate: 9600, rtscts: true,  parser: serialport.parsers.readline("\n") });
@@ -30,10 +30,11 @@ Pioneer.prototype.connect = function(options) {
 	    	var client = net.connect({ host: options.avrHost, port: options.avrPort});
 	}
 	client.on("connect", function (socket) {
+		clearTimeout(idleTimer)
+		if (!isNaN(options.avrPort)) {			// for tcp connections send data every 2min to check connection.
+			idleTimer = setTimeout(function() { self.client.write("\r") }, 120000 );
+		}
         	handleConnection(self);
-		idleTimer = setTimeout(function() {
-		    	self.client.write("\r");    // idle activity
-                }, 30000 );
 	});
 
 	client.on("open", function (socket) {
@@ -44,16 +45,9 @@ Pioneer.prototype.connect = function(options) {
        		handleData(self, data);
      	});	
 
-    	//client.on("end", function () {
-	//	//self.client.destroy();
-       	//	handleEnd(self);
-    	//});
-
     	client.on("close", function () {
-		clearTimeout(idleTimer)
-		setTimeout(function() { 
-		    	self.client = self.connect(options);
-		}, 30000 );
+		clearTimeout(idleTimer)				// Attempt reconnect every 30s
+		idleTimer = setTimeout(function() { self.client = self.connect(options) }, 30000 );
        		handleEnd(self);
     	});
 
