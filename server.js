@@ -142,7 +142,7 @@ domoticz.on('data', function(data) {
 			MUTE=0
 			receiver.mute(false)			
 		}
-		VOLUME = val
+		VOLUME=val
 	}
 	// Lights Dimmer
 	if (data.idx === switches.lights){
@@ -214,6 +214,7 @@ receiver.on('power', function(pwr) {
 		if (switches.zone3)	receiver.query3power();;
 		if (switches.zone4)	receiver.query4power();;
 		if (powermate) 		powermate.setBrightness(VOLUME*2.55);
+		if (tv)			tv.power(1);
 	}
 });
 
@@ -236,17 +237,16 @@ receiver.on('powerZone2', function(pwr) {
 
 // receiver: volume
 receiver.on('volume', function(val) {
-	if (TRACE) 			console.log("VOLUME: " + val);
-	if (tv) 			tv.volume(val);
-	//if (powermate) 			powermate.setBrightness(val*2.55);
-	if ((switches.volume) && (VOLUME !== val) && (!WAIT)) {
-		WAIT = true
-		domoticz.switch(switches.volume,parseInt(val))
+	if (VOLUME !== val) {
+		if (TRACE) 			console.log("VOLUME: " + val + "%");
+		if (tv) 			tv.volume(val);
+		if (powermate) 			powermate.setBrightness(val*2.55);
+		if ((switches.volume)&&(!WAIT))	domoticz.switch(switches.volume,parseInt(val));
 	}
 	clearTimeout(switchTimer)
 	switchTimer = setTimeout(function() { 
 		WAIT = false
-	}, 1500);
+	}, 1700);
 	VOLUME=val
 	READY=true
 });
