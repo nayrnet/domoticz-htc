@@ -246,6 +246,7 @@ receiver.on('volume', function(val) {
 	clearTimeout(switchTimer)
 	switchTimer = setTimeout(function() { 
 		WAIT = false
+		domoticz.switch(switches.volume,parseInt(VOLUME))
 	}, 1700);
 	VOLUME=val
 	READY=true
