@@ -128,11 +128,8 @@ domoticz.on('data', function(data) {
 		if ((val !== VOLUME) && (VOLUME) && (data.nvalue === 2) && (READY)) {
 			if (TRACE) { console.log("DOMO: Volume " + val) }
 			MUTE=0
-			WAIT=true
+			VOLUME=val
 			receiver.volume(val)
-			setTimeout(function() {
-				WAIT=false
-			}, 500);
 		} else if ((data.nvalue === 0) && (!MUTE)) {
 			if (TRACE) { console.log("DOMO: Mute ON") }
 			MUTE=1
@@ -142,7 +139,6 @@ domoticz.on('data', function(data) {
 			MUTE=0
 			receiver.mute(false)			
 		}
-		VOLUME=val
 	}
 	// Lights Dimmer
 	if (data.idx === switches.lights){
@@ -241,12 +237,10 @@ receiver.on('volume', function(val) {
 		if (TRACE) 			console.log("VOLUME: " + val + "%");
 		if (tv) 			tv.volume(val);
 		if (powermate) 			powermate.setBrightness(val*2.55);
-		if ((switches.volume)&&(!WAIT))	domoticz.switch(switches.volume,parseInt(val));
 	}
 	clearTimeout(switchTimer)
 	switchTimer = setTimeout(function() { 
-		WAIT = false
-		domoticz.switch(switches.volume,parseInt(VOLUME))
+		if (switches.volume)		domoticz.switch(switches.volume,parseInt(val));
 	}, 1700);
 	VOLUME=val
 	READY=true
