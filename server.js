@@ -50,10 +50,12 @@ var	TRACE		= true;;
 var	POWER		= false;
 var	Z2POWER		= false;
 var	MUTE		= false;
+var	Z2MUTE		= false;
 var	INPUT		= false;
 var	Z2INPUT		= false;
 var	MODE		= false;
 var	VOLUME		= false;
+var	Z2VOLUME	= false;
 var	WAIT		= false;
 var	DOWN		= false;
 var	READY		= true;
@@ -140,6 +142,29 @@ domoticz.on('data', function(data) {
 			receiver.mute(false)			
 		}
 	}
+	// Zone 2 Volume Switch
+	if (data.idx === switches.z2volume) {
+		if ((data.dtype !== "Light/Switch") || (data.stype !== "Switch") || (data.switchType !== "Dimmer")) {
+			domoticz.log("[HTC] ERROR: Wrong Switch Type - " + data.name)
+			console.log("DOMO ERROR: Wrong Switch Type - " + data.name)
+			return 0
+		}
+		val = parseInt(data.svalue1) + 1
+		if ((val !== VOLUME) && (VOLUME) && (data.nvalue === 2) && (READY)) {
+			if (TRACE) { console.log("DOMO: Zone 2 Volume " + val) }
+			Z2MUTE=0
+			Z2VOLUME=val
+			receiver.volume2zone(val)
+		} else if ((data.nvalue === 0) && (!MUTE)) {
+			if (TRACE) { console.log("DOMO: Zone 2 Mute ON") }
+			Z2MUTE=1
+			receiver.mute2zone(true)
+		} else if ((data.nvalue === 1) && (MUTE)) {
+			if (TRACE) { console.log("DOMO: Zone 2 Mute OFF") }
+			Z2MUTE=0
+			receiver.mute2zone(false)			
+		}
+	}
 	// Lights Dimmer
 	if (data.idx === switches.lights){
 		LIGHTS2 = parseInt(data.svalue1)
@@ -169,8 +194,8 @@ domoticz.on('data', function(data) {
 			receiver.selectInput2zone(zoneInputs[level][0])
 		} else if ((!level) && (Z2POWER)) {
 			receiver.power2zone(false)
-			//domoticz.switch(switches.zone2,0)
-			//if (switches.z2volume)	domoticz.switch(switches.z2volume,0);
+			domoticz.switch(switches.zone2,0)
+			if (switches.z2volume)	domoticz.switch(switches.z2volume,0);
 		}
 	}
 	if (TRACE) {
@@ -236,11 +261,22 @@ receiver.on('volume', function(val) {
 	if (VOLUME !== val) {
 		if (TRACE) 			console.log("VOLUME: " + val + "%");
 		if (tv) 			tv.volume(val);
-		if (powermate) 			powermate.setBrightness(val*2.55);
+		//if (powermate) 			powermate.setBrightness(val*2.55);
 	}
 	clearTimeout(switchTimer)
 	switchTimer = setTimeout(function() { 
 		if (switches.volume)		domoticz.switch(switches.volume,parseInt(val));
+	}, 1700);
+	VOLUME=val
+	READY=true
+});
+
+// receiver: zone 2 volume
+receiver.on('volume', function(val) {
+	if (TRACE) 				console.log("ZONE2 VOLUME: " + val + "%");
+	clearTimeout(switchTimer)
+	switchTimer = setTimeout(function() { 
+		if (switches.z2volume)		domoticz.switch(switches.z2volume,parseInt(val));
 	}, 1700);
 	VOLUME=val
 	READY=true
